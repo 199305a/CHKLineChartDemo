@@ -219,8 +219,8 @@
 				C5DAC43B2044F70B00D16B84 /* styles */,
 				C5DAC4372044F70B00D16B84 /* views */,
 				C5DAC4352044F70B00D16B84 /* DemoSelectViewController.swift */,
-				C5DAC4362044F70B00D16B84 /* DepthChartDemoViewController.swift */,
 				C5DAC457204500F100D16B84 /* ChartCustomViewController.swift */,
+				C5DAC4362044F70B00D16B84 /* DepthChartDemoViewController.swift */,
 				C5DAC46D2045791E00D16B84 /* SelectionPopView.swift */,
 			);
 			path = Demo;

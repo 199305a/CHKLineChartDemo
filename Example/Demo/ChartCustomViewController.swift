@@ -11,190 +11,124 @@ import UIKit
 
 class ChartCustomViewController: UIViewController {
     
-    /// 不显示
-    static let Hide: String = ""
-    
-    //选择时间
-    let times: [String] = [
-        "5min", "15min", "1hour", "6hour","1day",
-    ]
-
+    /// 选择时间
+    private let times = ["5min", "15min", "1hour", "6hour","1day"]
     /// 主图线段
-    let masterLine: [String] = [
-        CHSeriesKey.candle, CHSeriesKey.timeline
-    ]
-    
+    private let masterLine = [CHSeriesKey.candle, CHSeriesKey.timeline]
     /// 主图指标
-    let masterIndex: [String] = [
-        CHSeriesKey.ma, CHSeriesKey.ema, CHSeriesKey.sar, CHSeriesKey.boll, CHSeriesKey.sam, Hide
-    ]
-    
+    private let masterIndex = [CHSeriesKey.ma]
     /// 副图指标
-    let assistIndex: [String] = [
-        CHSeriesKey.volume, CHSeriesKey.sam, CHSeriesKey.kdj, CHSeriesKey.macd, CHSeriesKey.rsi, Hide
-    ]
-    
+    private let assistIndex = [CHSeriesKey.volume]
     //选择交易对
-    let exPairs: [String] = [
-        "BTC-USD", "ETH-USD", "LTC-USD",
-        "LTC-BTC", "ETH-BTC", "BCH-BTC",
-        ]
-    
+    private let exPairs = ["BTC-USD", "ETH-USD", "LTC-USD", "LTC-BTC", "ETH-BTC", "BCH-BTC"]
+    /// 已选主图线段
+    private var selectedMasterLine: Int = 0
+    /// 已选主图指标
+    private var selectedMasterIndex: Int = 0
+    /// 已选副图指标1
+    private var selectedAssistIndex: Int = 0
+    private var selectedSymbol: Int = 0
+    /// 数据源
+    private var klineDatas = [KlineChartData]()
+    /// 图表X轴的前一天，用于对比是否夸日
+    private var chartXAxisPrevDay: String = ""
     /// 已选周期
-    var selectedTime: Int = 0 {
+    private var selectedTime: Int = 0 {
         didSet {
             let time = self.times[self.selectedTime]
             self.buttonTime.setTitle(time, for: .normal)
         }
     }
-    
-    /// 已选主图线段
-    var selectedMasterLine: Int = 0
-    
-    /// 已选主图指标
-    var selectedMasterIndex: Int = 0
-    
-    /// 已选副图指标1
-    var selectedAssistIndex: Int = 0
-    
-    /// 已选副图指标2
-    var selectedAssistIndex2: Int = 0
-    
-    /// 选择的风格
-    var selectedTheme: Int = 0
-    
-    /// y轴显示方向
-    var selectedYAxisSide: Int = 1
-    
-    /// 蜡烛柱颜色
-    var selectedCandleColor: Int = 1
-    
-    var selectedSymbol: Int = 0
-    
-    /// 数据源
-    var klineDatas = [KlineChartData]()
-    
-    /// 图表X轴的前一天，用于对比是否夸日
-    var chartXAxisPrevDay: String = ""
-    
-    
     /// 图表
-    lazy var chartView: CHKLineChartView = {
+    private lazy var chartView: CHKLineChartView = {
         let chartView = CHKLineChartView(frame: CGRect.zero)
         chartView.style = self.loadUserStyle()
         chartView.delegate = self
         return chartView
     }()
-    
     /// 顶部数据
-    lazy var topView: TickerTopView = {
+    private lazy var topView: TickerTopView = {
         let view = TickerTopView(frame: CGRect.zero)
         return view
     }()
-    
     /// 选择时间周期
-    lazy var buttonTime: UIButton = {
+    private lazy var buttonTime: UIButton = {
         let btn = UIButton()
         btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleShowTimeSelection), for: .touchUpInside)
         return btn
     }()
-    
     /// 股票指标
-    lazy var buttonIndex: UIButton = {
+    private lazy var buttonIndex: UIButton = {
         let btn = UIButton()
         btn.setTitle("Index", for: .normal)
         btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleShowIndex), for: .touchUpInside)
         return btn
     }()
-    
     /// 市场设置
-    lazy var buttonMarket: UIButton = {
+    private lazy var buttonMarket: UIButton = {
         let btn = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 40))
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 15)
         btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleTitlePress(_:)), for: .touchUpInside)
         return btn
     }()
-    
     /// 工具栏
-    lazy var toolbar: UIView = {
+    private lazy var toolbar: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(hex: 0x242731)
         return view
     }()
-    
     ///周期弹出窗
-    lazy var selectionViewForTime: SelectionPopView = {
+    private lazy var selectionViewForTime: SelectionPopView = {
         let view = SelectionPopView() {
             (vc, indexPath) in
             self.selectedTime = indexPath.row
-            self.fetchChartDatas()
+            self.requestData()
         }
         return view
     }()
-    
     ///市场弹出窗
-    lazy var selectionViewForMarket: SelectionPopView = {
+    private lazy var selectionViewForMarket: SelectionPopView = {
         let view = SelectionPopView() {
             (vc, indexPath) in
             let symbol = self.exPairs[indexPath.row]
             self.selectedSymbol = indexPath.row
             self.buttonMarket.setTitle(symbol + "📈", for: .normal)
-            self.fetchChartDatas()
+            self.requestData()
         }
         return view
     }()
-    
     ///指标弹出窗
-    lazy var selectionViewForIndex: SelectionPopView = {
+    private lazy var selectionViewForIndex: SelectionPopView = {
         let view = SelectionPopView() {
             (vc, indexPath) in
             self.didSelectChartIndex(indexPath: indexPath)
         }
         return view
     }()
-    
-    lazy var loadingView: UIActivityIndicatorView = {
+    private lazy var loadingView: UIActivityIndicatorView = {
         let v = UIActivityIndicatorView(style: .whiteLarge)
         return v
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupUI()
+        self.configureSubviews()
         
         self.selectedTime = 0
         self.selectedMasterLine = 0
         self.selectedMasterIndex = 0
         self.selectedAssistIndex = 0
-        self.selectedAssistIndex2 = 2
         self.selectedSymbol = 0
         let symbol = self.exPairs[self.selectedSymbol]
         self.buttonMarket.setTitle(symbol + "📈", for: .normal)
         self.handleChartIndexChanged()
-        self.fetchChartDatas()
+        self.requestData()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-    }
-    
-    
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
-}
-
-// MARK: - 图表
-extension ChartCustomViewController {
-    
-    /// 拉取数据
-    func fetchChartDatas() {
+    func requestData() {
         self.loadingView.startAnimating()
         self.loadingView.isHidden = false
         let symbol = self.exPairs[self.selectedSymbol]
@@ -215,10 +149,12 @@ extension ChartCustomViewController {
                 }
         }
     }
+}
+
+// MARK: - Configure
+extension ChartCustomViewController {
     
-    /// 配置UI
-    func setupUI() {
-        
+    private func configureSubviews() {
         self.view.backgroundColor = UIColor(hex: 0x232732)
         self.navigationItem.titleView = self.buttonMarket
         self.view.addSubview(self.topView)
@@ -240,7 +176,6 @@ extension ChartCustomViewController {
         }
         
         self.chartView.snp.makeConstraints { (make) in
-//            make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
             make.left.right.equalToSuperview()
         }
         
@@ -265,6 +200,10 @@ extension ChartCustomViewController {
             make.centerY.equalToSuperview()
         }
     }
+}
+
+// MARK: - Action
+extension ChartCustomViewController {
     
     /// 选择周期
     @objc func handleShowTimeSelection() {
@@ -281,12 +220,10 @@ extension ChartCustomViewController {
         view.addItems(section: "Chart Line", items: self.masterLine, selectedIndex: self.selectedMasterLine)
         view.addItems(section: "Master Index", items: self.masterIndex, selectedIndex: self.selectedMasterIndex)
         view.addItems(section: "Assist Index 1", items: self.assistIndex, selectedIndex: self.selectedAssistIndex)
-        view.addItems(section: "Assist Index 2", items: self.assistIndex, selectedIndex: self.selectedAssistIndex2)
         view.show(from: self)
     }
     
     func didSelectChartIndex(indexPath: IndexPath) {
-        
         switch indexPath.section {
         case 0:
             self.selectedMasterLine = indexPath.row
@@ -294,48 +231,33 @@ extension ChartCustomViewController {
             self.selectedMasterIndex = indexPath.row
         case 2:
             self.selectedAssistIndex = indexPath.row
-        case 3:
-            self.selectedAssistIndex2 = indexPath.row
         default: break
         }
         
-        //重新渲染
+        // 重新渲染
         self.handleChartIndexChanged()
     }
     
     /// 处理指标的变更
     func handleChartIndexChanged() {
-        
         let lineKey = self.masterLine[self.selectedMasterLine]
         let masterKey = self.masterIndex[self.selectedMasterIndex]
         let assistKey = self.assistIndex[self.selectedAssistIndex]
-        let assist2Key = self.assistIndex[self.selectedAssistIndex2]
-        
-        self.chartView.setSection(hidden: assistKey == ChartCustomViewController.Hide, byIndex: 1)
-        self.chartView.setSection(hidden: assist2Key == ChartCustomViewController.Hide, byIndex: 2)
         
         //先隐藏所有线段
         self.chartView.setSerie(hidden: true, inSection: 0)
         self.chartView.setSerie(hidden: true, inSection: 1)
-        self.chartView.setSerie(hidden: true, inSection: 2)
         
         //显示当前选中的线段
+        self.chartView.setSerie(hidden: false, by: lineKey, inSection: 0)
         self.chartView.setSerie(hidden: false, by: masterKey, inSection: 0)
         self.chartView.setSerie(hidden: false, by: assistKey, inSection: 1)
-        self.chartView.setSerie(hidden: false, by: assist2Key, inSection: 2)
-        self.chartView.setSerie(hidden: false, by: lineKey, inSection: 0)
         
         //重新渲染
         self.chartView.reloadData(resetData: false)
     }
-
-    /// 更新指标算法和样式风格
-    func updateUserStyle() {
-        self.chartView.resetStyle(style: self.loadUserStyle())
-        self.handleChartIndexChanged()
-    }
     
-    @IBAction func handleTitlePress(_ sender: Any) {
+    @objc func handleTitlePress(_ sender: Any) {
         let view = self.selectionViewForMarket
         view.clear()
         view.addItems(section: "Markets", items: self.exPairs, selectedIndex: self.selectedSymbol)
@@ -343,7 +265,7 @@ extension ChartCustomViewController {
     }
 }
 
-// MARK: - 实现K线图表的委托方法
+// MARK: - CHKLineChartDelegate
 extension ChartCustomViewController: CHKLineChartDelegate {
     
     func numberOfPointsInKLineChart(chart: CHKLineChartView) -> Int {
@@ -432,12 +354,12 @@ extension ChartCustomViewController: CHKLineChartDelegate {
             key = section.series[section.selectedIndex].key
         }
         
-        //获取该线段的标题值及颜色，可以继续自定义
+        // 获取该线段的标题值及颜色，可以继续自定义
         guard let attributes = section.getTitleAttributesByIndex(index, seriesKey: key) else {
             return nil
         }
         
-        //合并为完整字符串
+        // 合并为完整字符串
         for (title, color) in attributes {
             titleString.append(NSAttributedString(string: title))
             let range = NSMakeRange(start, title.ch_length)
@@ -466,33 +388,28 @@ extension ChartCustomViewController: CHKLineChartDelegate {
         switch section.index {
         case 1:
             self.selectedAssistIndex = self.assistIndex.firstIndex(of: series.key) ?? self.selectedAssistIndex
-        case 2:
-            self.selectedAssistIndex2 = self.assistIndex.firstIndex(of: series.key) ?? self.selectedAssistIndex2
         default:break
         }
     }
 }
 
-// MARK: - 竖屏切换重载方法实现
+// MARK: - Rotate
 extension ChartCustomViewController {
-    
     
     override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
         if toInterfaceOrientation.isPortrait {
-            //竖屏时，交易量的y轴只以4间断显示
+            // 竖屏时，交易量的y轴只以4间断显示
             self.chartView.sections[1].yAxis.tickInterval = 3
-            self.chartView.sections[2].yAxis.tickInterval = 3
         } else {
-            //竖屏时，交易量的y轴只以2间断显示
+            // 竖屏时，交易量的y轴只以2间断显示
             self.chartView.sections[1].yAxis.tickInterval = 1
-            self.chartView.sections[2].yAxis.tickInterval = 1
         }
         self.chartView.reloadData()
     }
     
 }
 
-// MARK: - 自定义样式
+// MARK: - Custom Style
 extension ChartCustomViewController {
     
     /// 读取用户自定义样式
@@ -509,7 +426,7 @@ extension ChartCustomViewController {
         style.selectedBGColor = UIColor(white: 0.4, alpha: 1)
         style.selectedTextColor = UIColor(hex: styleParam.selectedTextColor)
         style.backgroundColor = UIColor(hex: styleParam.backgroundColor)
-        style.isInnerYAxis = styleParam.isInnerYAxis
+        style.isInnerYAxis = true
         
         if styleParam.showYAxisLabel == "Left" {
             style.showYAxisLabel = .left
@@ -542,7 +459,7 @@ extension ChartCustomViewController {
         let volumeSection = CHSection()
         volumeSection.backgroundColor = style.backgroundColor
         volumeSection.valueType = .assistant
-        volumeSection.key = "assist1"
+        volumeSection.key = "volume"
         volumeSection.hidden = false
         volumeSection.ratios = 1
         volumeSection.paging = true
@@ -551,7 +468,7 @@ extension ChartCustomViewController {
         
         /************** 添加主图固定的线段 **************/
         
-        /// 时分线
+        /// 分时图
         let timelineSeries = CHSeries.getTimelinePrice(
             color: UIColor.ch_hex(0xAE475C),
             section: mainSection,
@@ -561,7 +478,7 @@ extension ChartCustomViewController {
         
         timelineSeries.hidden = true
         
-        /// 蜡烛线
+        /// 蜡烛图
         let candleSeries = CHSeries.getCandlePrice(
             upStyle: upcolor,
             downStyle: downcolor,
@@ -580,7 +497,7 @@ extension ChartCustomViewController {
         let maArray = maNums.map { CHChartAlgorithm.ma($0) }
         style.algorithms.append(contentsOf: maArray)
         
-        //分区点线样式
+        // 分区点线样式
         let lineColors = [
             UIColor(hex: styleParam.lineColors[0]),
             UIColor(hex: styleParam.lineColors[1]),
