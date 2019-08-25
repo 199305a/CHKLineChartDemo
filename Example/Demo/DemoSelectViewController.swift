@@ -15,10 +15,7 @@ class DemoSelectViewController: UIViewController {
 
     let demo: [Int: (String, String, Bool)] = [
         0: ("K线最佳实践例子", "ChartCustomViewController", false),
-        1: ("K线简单线段例子", "ChartFullViewController", true),
-        2: ("K线静态图片例子", "ChartImageViewController", true),
-        3: ("K线列表图表例子", "ChartInTableViewController", true),
-        4: ("盘口深度图表例子", "DepthChartDemoViewController", true),
+        1: ("盘口深度图表例子", "DepthChartDemoViewController", true),
     ]
     
     override func viewDidLoad() {

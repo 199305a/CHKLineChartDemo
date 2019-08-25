@@ -109,24 +109,6 @@ class ChartCustomViewController: UIViewController {
         return btn
     }()
     
-    /// 指标设置
-    lazy var buttonSetting: UIButton = {
-        let btn = UIButton()
-        btn.setTitle("Params", for: .normal)
-        btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
-        btn.addTarget(self, action: #selector(self.gotoSettingList), for: .touchUpInside)
-        return btn
-    }()
-    
-    /// 风格设置
-    lazy var buttonStyle: UIButton = {
-        let btn = UIButton()
-        btn.setTitle("Style", for: .normal)
-        btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
-        btn.addTarget(self, action: #selector(self.gotoStyleSetting), for: .touchUpInside)
-        return btn
-    }()
-    
     /// 市场设置
     lazy var buttonMarket: UIButton = {
         let btn = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 40))
@@ -175,7 +157,7 @@ class ChartCustomViewController: UIViewController {
     }()
     
     lazy var loadingView: UIActivityIndicatorView = {
-        let v = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        let v = UIActivityIndicatorView(style: .whiteLarge)
         return v
     }()
     
@@ -245,8 +227,6 @@ extension ChartCustomViewController {
         self.view.addSubview(self.loadingView)
         self.toolbar.addSubview(self.buttonIndex)
         self.toolbar.addSubview(self.buttonTime)
-        self.toolbar.addSubview(self.buttonSetting)
-        self.toolbar.addSubview(self.buttonStyle)
         
         self.loadingView.snp.makeConstraints { (make) in
             make.center.equalTo(self.chartView)
@@ -284,21 +264,6 @@ extension ChartCustomViewController {
             make.height.equalTo(30)
             make.centerY.equalToSuperview()
         }
-        
-        self.buttonSetting.snp.makeConstraints { (make) in
-            make.right.equalToSuperview().inset(8)
-            make.width.equalTo(80)
-            make.height.equalTo(30)
-            make.centerY.equalToSuperview()
-        }
-        
-        self.buttonStyle.snp.makeConstraints { (make) in
-            make.right.equalTo(self.buttonSetting.snp.left)
-            make.width.equalTo(80)
-            make.height.equalTo(30)
-            make.centerY.equalToSuperview()
-        }
-        
     }
     
     /// 选择周期
@@ -363,24 +328,11 @@ extension ChartCustomViewController {
         //重新渲染
         self.chartView.reloadData(resetData: false)
     }
-    
-    /// 进入参数设置
-    @objc func gotoSettingList() {
-        let vc = SettingListViewController()
-        vc.delegate = self
-        self.navigationController?.pushViewController(vc, animated: true)
-    }
-    
+
     /// 更新指标算法和样式风格
     func updateUserStyle() {
         self.chartView.resetStyle(style: self.loadUserStyle())
         self.handleChartIndexChanged()
-    }
-    
-    @objc func gotoStyleSetting() {
-        let vc = ChartStyleSettingViewController()
-        vc.delegate = self
-        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func handleTitlePress(_ sender: Any) {
@@ -489,7 +441,7 @@ extension ChartCustomViewController: CHKLineChartDelegate {
         for (title, color) in attributes {
             titleString.append(NSAttributedString(string: title))
             let range = NSMakeRange(start, title.ch_length)
-            let colorAttribute = [NSAttributedStringKey.foregroundColor: color]
+            let colorAttribute = [NSAttributedString.Key.foregroundColor: color]
             titleString.addAttributes(colorAttribute, range: range)
             start += title.ch_length
         }
@@ -513,9 +465,9 @@ extension ChartCustomViewController: CHKLineChartDelegate {
     func kLineChart(chart: CHKLineChartView, didFlipPageSeries section: CHSection, series: CHSeries, seriesIndex: Int) {
         switch section.index {
         case 1:
-            self.selectedAssistIndex = self.assistIndex.index(of: series.key) ?? self.selectedAssistIndex
+            self.selectedAssistIndex = self.assistIndex.firstIndex(of: series.key) ?? self.selectedAssistIndex
         case 2:
-            self.selectedAssistIndex2 = self.assistIndex.index(of: series.key) ?? self.selectedAssistIndex2
+            self.selectedAssistIndex2 = self.assistIndex.firstIndex(of: series.key) ?? self.selectedAssistIndex2
         default:break
         }
     }
@@ -663,18 +615,3 @@ extension ChartCustomViewController {
         return style
     }
 }
-
-extension ChartCustomViewController: SettingListViewDelegate {
-    
-    func didCompletedParamsSetting() {
-        self.updateUserStyle()
-    }
-}
-
-extension ChartCustomViewController: ChartStyleSettingViewDelegate {
-    
-    func didChartStyleChanged(styleParam: StyleParam) {
-        self.updateUserStyle()
-    }
-}
-
