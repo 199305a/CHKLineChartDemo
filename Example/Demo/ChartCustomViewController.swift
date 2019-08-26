@@ -128,6 +128,16 @@ class ChartCustomViewController: UIViewController {
         self.requestData()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+    }
+    
     func requestData() {
         self.loadingView.startAnimating()
         self.loadingView.isHidden = false
@@ -169,8 +179,8 @@ extension ChartCustomViewController {
         }
         
         self.topView.snp.makeConstraints { (make) in
-            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(4)
-            make.bottom.equalTo(self.chartView.snp.top).offset(-4)
+            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            make.bottom.equalTo(self.chartView.snp.top)
             make.left.right.equalToSuperview().inset(8)
             make.height.equalTo(60)
         }
@@ -302,8 +312,8 @@ extension ChartCustomViewController: CHKLineChartDelegate {
     func kLineChart(chart: CHKLineChartView, labelOnXAxisForIndex index: Int) -> String {
         let data = self.klineDatas[index]
         let timestamp = data.time
-        let dayText = Date.ch_getTimeByStamp(timestamp, format: "MM-dd")
-        let timeText = Date.ch_getTimeByStamp(timestamp, format: "HH:mm")
+        let dayText = Date.ch_getTimeByStamp(timestamp, format: "yyyy-MM-dd")
+        let timeText = Date.ch_getTimeByStamp(timestamp, format: "MM-dd HH:mm")
         var text = ""
         //跨日，显示日期
         if dayText != self.chartXAxisPrevDay && index > 0 {
@@ -314,23 +324,6 @@ extension ChartCustomViewController: CHKLineChartDelegate {
         self.chartXAxisPrevDay = dayText
         return text
     }
-    
-    
-    /// 调整每个分区的小数位保留数
-    ///
-    /// - parameter chart:
-    /// - parameter section:
-    ///
-    /// - returns:
-    func kLineChart(chart: CHKLineChartView, decimalAt section: Int) -> Int {
-        if section == 0 {
-            return 4
-        } else {
-            return 2
-        }
-        
-    }
-    
     
     /// 调整Y轴标签宽度
     ///
@@ -416,55 +409,54 @@ extension ChartCustomViewController {
     ///
     /// - Returns:
     func loadUserStyle() -> CHKLineChartStyle {
-        
-        let styleParam = StyleParam.shared
-        
+        let backgroundColor = UIColor(hex: 0x232732)
+
         let style = CHKLineChartStyle()
+//        style.borderWidth = (0.5, 0, 0.5, 0.5)
         style.labelFont = UIFont.systemFont(ofSize: 10)
-        style.lineColor = UIColor(hex: styleParam.lineColor)
-        style.textColor = UIColor(hex: styleParam.textColor)
+        style.lineColor = UIColor.white
+        style.textColor = UIColor.white
+        style.selectedLineColor = UIColor.white
+        style.selectedSightColor = UIColor.white
         style.selectedBGColor = UIColor(white: 0.4, alpha: 1)
-        style.selectedTextColor = UIColor(hex: styleParam.selectedTextColor)
-        style.backgroundColor = UIColor(hex: styleParam.backgroundColor)
+        style.selectedTextColor = UIColor.white
+        style.backgroundColor = backgroundColor
         style.isInnerYAxis = true
+        style.showYAxisLabel = .right
+        style.padding = UIEdgeInsets.zero
         
-        if styleParam.showYAxisLabel == "Left" {
-            style.showYAxisLabel = .left
-            style.padding = UIEdgeInsets(top: 16, left: 0, bottom: 4, right: 8)
-            
-        } else {
-            style.showYAxisLabel = .right
-            style.padding = UIEdgeInsets(top: 16, left: 8, bottom: 4, right: 0)
-            
-        }
-    
+        let maNums = [5, 10]
+        let maArray = maNums.map { CHChartAlgorithm.ma($0) }
+        style.algorithms.append(contentsOf: maArray)
         style.algorithms.append(CHChartAlgorithm.timeline)
         
         /************** 配置分区样式 **************/
         
         /// 主图
-        let upcolor = (UIColor.ch_hex(styleParam.upColor), true)
-        let downcolor = (UIColor.ch_hex(styleParam.downColor), true)
+        let upcolor = (UIColor(hex: 0x00bd9a), true)
+        let downcolor = (UIColor.init(hex: 0xff6960), true)
         let mainSection = CHSection()
         mainSection.backgroundColor = style.backgroundColor
-        mainSection.titleShowOutSide = true
         mainSection.valueType = .master
         mainSection.key = "master"
-        mainSection.hidden = false
         mainSection.ratios = 3
-        mainSection.padding = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
-        
-        
+        mainSection.padding = UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
+        mainSection.xAxis.tickInterval = 4
+        mainSection.xAxis.referenceStyle = .solid(color: UIColor(white: 0.4, alpha: 1))
+        mainSection.yAxis.referenceStyle = .solid(color: UIColor(white: 0.4, alpha: 1))
         /// 副图1
         let volumeSection = CHSection()
         volumeSection.backgroundColor = style.backgroundColor
         volumeSection.valueType = .assistant
         volumeSection.key = "volume"
-        volumeSection.hidden = false
         volumeSection.ratios = 1
         volumeSection.paging = true
-        volumeSection.yAxis.tickInterval = 4
-        volumeSection.padding = UIEdgeInsets(top: 16, left: 0, bottom: 8, right: 0)
+        volumeSection.padding = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+        volumeSection.xAxis.tickInterval = 4
+        volumeSection.xAxis.referenceStyle = .solid(color: UIColor(white: 0.4, alpha: 1))
+        volumeSection.yAxis.tickInterval = 1
+        volumeSection.yAxis.referenceStyle = .none
+        volumeSection.yAxis.showLast = false
         
         /************** 添加主图固定的线段 **************/
         
@@ -475,9 +467,7 @@ extension ChartCustomViewController {
             showGuide: true,
             ultimateValueStyle: .circle(UIColor.ch_hex(0xAE475C), true),
             lineWidth: 2)
-        
         timelineSeries.hidden = true
-        
         /// 蜡烛图
         let candleSeries = CHSeries.getCandlePrice(
             upStyle: upcolor,
@@ -486,30 +476,19 @@ extension ChartCustomViewController {
             section: mainSection,
             showGuide: true,
             ultimateValueStyle: .arrow(UIColor(white: 0.8, alpha: 1)))
-        
         candleSeries.showTitle = true
         candleSeries.chartModels.first?.ultimateValueStyle = .arrow(UIColor(white: 0.8, alpha: 1))
-        
         mainSection.series.append(timelineSeries)
         mainSection.series.append(candleSeries)
         
-        let maNums = [5, 10]
-        let maArray = maNums.map { CHChartAlgorithm.ma($0) }
-        style.algorithms.append(contentsOf: maArray)
-        
         // 分区点线样式
-        let lineColors = [
-            UIColor(hex: styleParam.lineColors[0]),
-            UIColor(hex: styleParam.lineColors[1]),
-        ]
-        
+        let lineColors = [UIColor(hex: 0xDDDDDD), UIColor(hex: 0xF9EE30)]
         let mainMASeries = CHSeries.getPriceMA(
             isEMA: false,
             num: maNums,
             colors: lineColors,
             section: mainSection)
         mainSection.series.append(mainMASeries)
-        
         let volumeMASeries = CHSeries.getVolumeWithMA(
             upStyle: upcolor,
             downStyle: downcolor,
@@ -518,16 +497,16 @@ extension ChartCustomViewController {
             colors: lineColors,
             section: volumeSection
         )
+        volumeMASeries.baseValueSticky = true
         volumeSection.series.append(volumeMASeries)
-        
-        
         style.sections.append(mainSection)
         style.sections.append(volumeSection)
         
         /************** 同时设置图表外的样式背景 **************/
-        self.view.backgroundColor = UIColor(hex: styleParam.backgroundColor)
-        self.topView.backgroundColor = UIColor(hex: styleParam.backgroundColor)
-        self.toolbar.backgroundColor = UIColor(hex: styleParam.backgroundColor)
+        
+        self.view.backgroundColor = backgroundColor
+        self.topView.backgroundColor = backgroundColor
+        self.toolbar.backgroundColor = backgroundColor
         
         return style
     }

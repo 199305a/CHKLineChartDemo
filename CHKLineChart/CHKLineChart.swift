@@ -167,7 +167,6 @@ open class CHKLineChartView: UIView {
     @IBInspectable open var labelFont = UIFont.systemFont(ofSize: 10) 
     @IBInspectable open var lineColor: UIColor = UIColor(white: 0.2, alpha: 1) //线条颜色
     @IBInspectable open var textColor: UIColor = UIColor(white: 0.8, alpha: 1) //文字颜色
-    @IBInspectable open var xAxisPerInterval: Int = 4                        //x轴的间断个数
     
     open var yAxisLabelWidth: CGFloat = 0                    //Y轴的宽度
     open var handlerOfAlgorithms: [CHChartAlgorithmProtocol] = [CHChartAlgorithmProtocol]()
@@ -227,6 +226,8 @@ open class CHKLineChartView: UIView {
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
     
+    open var selectedLineColor: UIColor = UIColor.white
+    open var selectedSightColor: UIColor = UIColor.white
     open var selectedBGColor: UIColor = UIColor(white: 0.4, alpha: 1)    //选中点的显示的框背景颜色
     open var selectedTextColor: UIColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1) //选中点的显示的文字颜色
     var verticalLineView: UIView?
@@ -270,6 +271,8 @@ open class CHKLineChartView: UIView {
             self.textColor = self.style.textColor
             self.labelFont = self.style.labelFont
             self.showYAxisLabel = self.style.showYAxisLabel
+            self.selectedLineColor = self.style.selectedLineColor
+            self.selectedSightColor = self.style.selectedSightColor
             self.selectedBGColor = self.style.selectedBGColor
             self.selectedTextColor = self.style.selectedTextColor
             self.isInnerYAxis = self.style.isInnerYAxis
@@ -317,12 +320,12 @@ open class CHKLineChartView: UIView {
         
         //初始化点击选择的辅助线显示
         self.verticalLineView = UIView(frame: CGRect(x: 0, y: 0, width: lineWidth, height: 0))
-        self.verticalLineView?.backgroundColor = self.selectedBGColor
+        self.verticalLineView?.backgroundColor = selectedLineColor
         self.verticalLineView?.isHidden = true
         self.addSubview(self.verticalLineView!)
         
         self.horizontalLineView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: lineWidth))
-        self.horizontalLineView?.backgroundColor = self.selectedBGColor
+        self.horizontalLineView?.backgroundColor = selectedLineColor
         self.horizontalLineView?.isHidden = true
         self.addSubview(self.horizontalLineView!)
         
@@ -348,7 +351,7 @@ open class CHKLineChartView: UIView {
         self.addSubview(self.selectedXAxisLabel!)
         
         self.sightView = UIView(frame: CGRect(x: 0, y: 0, width: 6, height: 6))
-        self.sightView?.backgroundColor = self.selectedBGColor
+        self.sightView?.backgroundColor = selectedSightColor
         self.sightView?.isHidden = true
         self.sightView?.layer.cornerRadius = 3
         self.addSubview(self.sightView!)
@@ -918,55 +921,34 @@ extension CHKLineChartView {
      - parameter width:   总宽度
      */
     fileprivate func drawXAxis(_ section: CHSection) -> [(CGRect, String)] {
-        
         var xAxisToDraw = [(CGRect, String)]()
-        
         let xAxis = CHShapeLayer()
-        
-        var startX: CGFloat = section.frame.origin.x + section.padding.left
-        let endX: CGFloat = section.frame.origin.x + section.frame.size.width - section.padding.right
+        let startX: CGFloat = section.frame.origin.x + section.padding.left
         let secWidth: CGFloat = section.frame.size.width
         let secPaddingLeft: CGFloat = section.padding.left
         let secPaddingRight: CGFloat = section.padding.right
-        
-        //x轴分平均分4个间断，显示5个x轴坐标，按照图表的值个数，计算每个间断的个数
-        let dataRange = self.rangeTo - self.rangeFrom
-        var xTickInterval: Int = dataRange / self.xAxisPerInterval
-        if xTickInterval <= 0 {
-            xTickInterval = 1
-        }
-        
-        //绘制x轴标签
-        //每个点的间隔宽度
-        let perPlotWidth: CGFloat = (secWidth - secPaddingLeft - secPaddingRight) / CGFloat(self.rangeTo - self.rangeFrom)
         let startY = section.frame.maxY
-        var k: Int = 0
+        //每个点的宽度（包括左右空白）
+        let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(rangeTo - rangeFrom)
+        //每个标签的间隔
+        let tickSpace: CGFloat = (secWidth - secPaddingLeft - secPaddingRight) / CGFloat(section.xAxis.tickInterval)
+        
         var showXAxisReference = false
-        //相当 for var i = self.rangeFrom; i < self.rangeTo; i = i + xTickInterval
-        for i in stride(from: self.rangeFrom, to: self.rangeTo, by: xTickInterval) {
-            
-            let xLabel = self.delegate?.kLineChart?(chart: self, labelOnXAxisForIndex: i) ?? ""
-            var textSize = xLabel.ch_sizeWithConstrained(self.labelFont)
-            textSize.width = textSize.width + 4
-            var xPox = startX - textSize.width / 2 + perPlotWidth / 2
-            //计算最左最右的x轴标签不越过边界
-            if (xPox < 0) {
-                xPox = startX
-            } else if (xPox + textSize.width > endX) {
-                xPox = endX - textSize.width
-            }
-            //        NSLog(@"xPox = %f", xPox)
-            //        NSLog(@"textSize.width = %f", textSize.width)
-            let barLabelRect = CGRect(x: xPox, y: startY, width: textSize.width, height: textSize.height)
-            
+        for i in 0...section.xAxis.tickInterval {
+            let offsetX = tickSpace * CGFloat(i)
+            let verticalLineX = startX + offsetX
+            let labelIndex = Int(ceil(offsetX / plotWidth)) + rangeFrom - 1
+            let xLabel = self.delegate?.kLineChart?(chart: self, labelOnXAxisForIndex: labelIndex) ?? ""
+            let textSize = xLabel.ch_sizeWithConstrained(self.labelFont)
+            let barLabelRect = CGRect(x: verticalLineX - textSize.width / 2, y: startY, width: textSize.width, height: textSize.height)
             //记录待绘制的文本
             xAxisToDraw.append((barLabelRect, xLabel))
             
+            guard i != 0 || i != section.xAxis.tickInterval else { continue }
             //绘制辅助线
             let referencePath = UIBezierPath()
             let referenceLayer = CHShapeLayer()
             referenceLayer.lineWidth = self.lineWidth
-            
             //处理辅助线样式
             switch section.xAxis.referenceStyle {
             case let .dash(color: dashColor, pattern: pattern):
@@ -979,22 +961,15 @@ extension CHKLineChartView {
             default:
                 showXAxisReference = false
             }
-            
             //需要画x轴上的辅助线
             if showXAxisReference {
-                referencePath.move(to: CGPoint(x: xPox + textSize.width / 2, y: section.frame.minY))
-                referencePath.addLine(to: CGPoint(x: xPox + textSize.width / 2, y: section.frame.maxY))
+                referencePath.move(to: CGPoint(x: verticalLineX, y: section.frame.minY))
+                referencePath.addLine(to: CGPoint(x: verticalLineX, y: section.frame.maxY))
                 referenceLayer.path = referencePath.cgPath
                 xAxis.addSublayer(referenceLayer)
             }
-            
-            
-            k = k + xTickInterval
-            startX = perPlotWidth * CGFloat(k)
         }
-        
         self.drawLayer.addSublayer(xAxis)
-
         return xAxisToDraw
     }
     
@@ -1082,7 +1057,7 @@ extension CHKLineChartView {
         //画右边线
         if self.borderWidth.right > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right - borderWidth.left, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
             
         }
         
@@ -1168,6 +1143,12 @@ extension CHKLineChartView {
             //递增下一个
             i =  i + 1
             yVal = yaxis.baseValue - CGFloat(i) * step
+        }
+        
+        if !section.yAxis.showLast {
+            var sortedValue = valueToDraw.sorted(by: >)
+            sortedValue.removeLast()
+            valueToDraw = Set(sortedValue)
         }
         
         for (i, yVal) in valueToDraw.enumerated() {

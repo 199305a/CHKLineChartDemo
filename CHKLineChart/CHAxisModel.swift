@@ -47,6 +47,7 @@ public struct CHYAxis {
     public var pos: Int = 0
     public var decimal: Int = 2                //约束小数位
     public var isUsed = false
+    public var showLast = true                 //是否显示最后一个label和辅助线
     
     /// 辅助线样式
     public var referenceStyle: CHAxisReferenceStyle = .dash(color: UIColor(white: 0.2, alpha: 1), pattern: [5])

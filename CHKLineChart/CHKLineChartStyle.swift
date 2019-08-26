@@ -56,6 +56,12 @@ open class CHKLineChartStyle {
     //文字颜色
     open var textColor: UIColor = UIColor.clear
     
+    //选中点的显示的交叉线颜色
+    open var selectedLineColor: UIColor = UIColor.white
+    
+    //选中点的显示的颜色
+    open var selectedSightColor: UIColor = UIColor.white
+    
     //选中点的显示的框背景颜色
     open var selectedBGColor: UIColor = UIColor.clear
     
