@@ -14,7 +14,7 @@ class TickerTopView: UIView {
     /// 价格
     lazy var labelPrice: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0x00bd9a)
+        view.textColor = UIColor.ch_hex(0x00bd9a)
         view.font = UIFont.systemFont(ofSize: 26)
         return view
     }()
@@ -22,7 +22,7 @@ class TickerTopView: UIView {
     /// 涨跌
     lazy var labelRise: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -30,7 +30,7 @@ class TickerTopView: UIView {
     /// 开盘
     lazy var labelOpen: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -38,7 +38,7 @@ class TickerTopView: UIView {
     /// 最高
     lazy var labelHigh: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -46,7 +46,7 @@ class TickerTopView: UIView {
     /// 收盘
     lazy var labelClose: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -54,7 +54,7 @@ class TickerTopView: UIView {
     /// 最低
     lazy var labelLow: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -62,7 +62,7 @@ class TickerTopView: UIView {
     /// 交易量
     lazy var labelVol: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -70,7 +70,7 @@ class TickerTopView: UIView {
     /// 交易额
     lazy var labelTurnover: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -78,7 +78,7 @@ class TickerTopView: UIView {
     /// 价格±
     lazy var labelMargin: UILabel = {
         let view = UILabel()
-        view.textColor = UIColor(hex: 0xfe9d25)
+        view.textColor = UIColor.ch_hex(0xfe9d25)
         view.font = UIFont.systemFont(ofSize: 12)
         return view
     }()
@@ -194,15 +194,15 @@ class TickerTopView: UIView {
     /// - Parameter data:
     func update(data: KlineChartData) {
         self.labelPrice.text = "\(data.closePrice)"
-        self.labelRise.text = "\(data.amplitudeRatio.toString(maxF: 2))%"
-        self.labelMargin.text = "\(data.amplitude.toString(maxF: 4))"
+        self.labelRise.text = "\(data.amplitudeRatio.ch_toString(maxF: 2))%"
+        self.labelMargin.text = "\(data.amplitude.ch_toString(maxF: 4))"
         
-        self.labelOpen.text = "O" + " " + "\(data.openPrice.toString(maxF: 4))"
-        self.labelHigh.text = "H" + " " + "\(data.highPrice.toString(maxF: 4))"
-        self.labelLow.text = "L" + " " + "\(data.lowPrice.toString(maxF: 4))"
-        self.labelClose.text = "C" + " " + "\(data.closePrice.toString(maxF: 4))"
-        self.labelVol.text = "V" + " " + "\(data.vol.toString(maxF: 2))"
+        self.labelOpen.text = "O" + " " + "\(data.openPrice.ch_toString(maxF: 4))"
+        self.labelHigh.text = "H" + " " + "\(data.highPrice.ch_toString(maxF: 4))"
+        self.labelLow.text = "L" + " " + "\(data.lowPrice.ch_toString(maxF: 4))"
+        self.labelClose.text = "C" + " " + "\(data.closePrice.ch_toString(maxF: 4))"
+        self.labelVol.text = "V" + " " + "\(data.vol.ch_toString(maxF: 2))"
         let turnover = data.vol * data.closePrice
-        self.labelTurnover.text = "T" + " " + "\(turnover.toString(maxF: 2))"
+        self.labelTurnover.text = "T" + " " + "\(turnover.ch_toString(maxF: 2))"
     }
 }

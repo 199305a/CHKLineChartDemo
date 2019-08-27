@@ -54,7 +54,7 @@ class ChartCustomViewController: UIViewController {
     /// 选择时间周期
     private lazy var buttonTime: UIButton = {
         let btn = UIButton()
-        btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
+        btn.setTitleColor(UIColor.ch_hex(0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleShowTimeSelection), for: .touchUpInside)
         return btn
     }()
@@ -62,7 +62,7 @@ class ChartCustomViewController: UIViewController {
     private lazy var buttonIndex: UIButton = {
         let btn = UIButton()
         btn.setTitle("Index", for: .normal)
-        btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
+        btn.setTitleColor(UIColor.ch_hex(0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleShowIndex), for: .touchUpInside)
         return btn
     }()
@@ -70,14 +70,14 @@ class ChartCustomViewController: UIViewController {
     private lazy var buttonMarket: UIButton = {
         let btn = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 40))
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        btn.setTitleColor(UIColor(hex: 0xfe9d25), for: .normal)
+        btn.setTitleColor(UIColor.ch_hex(0xfe9d25), for: .normal)
         btn.addTarget(self, action: #selector(self.handleTitlePress(_:)), for: .touchUpInside)
         return btn
     }()
     /// 工具栏
     private lazy var toolbar: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: 0x242731)
+        view.backgroundColor = UIColor.ch_hex(0x242731)
         return view
     }()
     ///周期弹出窗
@@ -165,7 +165,7 @@ class ChartCustomViewController: UIViewController {
 extension ChartCustomViewController {
     
     private func configureSubviews() {
-        self.view.backgroundColor = UIColor(hex: 0x232732)
+        self.view.backgroundColor = UIColor.ch_hex(0x232732)
         self.navigationItem.titleView = self.buttonMarket
         self.view.addSubview(self.topView)
         self.view.addSubview(self.chartView)
@@ -179,7 +179,7 @@ extension ChartCustomViewController {
         }
         
         self.topView.snp.makeConstraints { (make) in
-            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            make.top.equalTo(self.topLayoutGuide.snp.bottom)
             make.bottom.equalTo(self.chartView.snp.top)
             make.left.right.equalToSuperview().inset(8)
             make.height.equalTo(60)
@@ -192,7 +192,7 @@ extension ChartCustomViewController {
         self.toolbar.snp.makeConstraints { (make) in
             make.top.equalTo(self.chartView.snp.bottom)
             make.left.right.equalToSuperview()
-            make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
+            make.bottom.equalTo(self.bottomLayoutGuide.snp.top)
             make.height.equalTo(44)
         }
         
@@ -409,7 +409,7 @@ extension ChartCustomViewController {
     ///
     /// - Returns:
     func loadUserStyle() -> CHKLineChartStyle {
-        let backgroundColor = UIColor(hex: 0x232732)
+        let backgroundColor = UIColor.ch_hex(0x232732)
 
         let style = CHKLineChartStyle()
 //        style.borderWidth = (0.5, 0, 0.5, 0.5)
@@ -433,8 +433,8 @@ extension ChartCustomViewController {
         /************** 配置分区样式 **************/
         
         /// 主图
-        let upcolor = (UIColor(hex: 0x00bd9a), true)
-        let downcolor = (UIColor.init(hex: 0xff6960), true)
+        let upcolor = (UIColor.ch_hex(0x00bd9a), true)
+        let downcolor = (UIColor.ch_hex(0xff6960), true)
         let mainSection = CHSection()
         mainSection.backgroundColor = style.backgroundColor
         mainSection.valueType = .master
@@ -482,7 +482,7 @@ extension ChartCustomViewController {
         mainSection.series.append(candleSeries)
         
         // 分区点线样式
-        let lineColors = [UIColor(hex: 0xDDDDDD), UIColor(hex: 0xF9EE30)]
+        let lineColors = [UIColor.ch_hex(0xDDDDDD), UIColor.ch_hex(0xF9EE30)]
         let mainMASeries = CHSeries.getPriceMA(
             isEMA: false,
             num: maNums,

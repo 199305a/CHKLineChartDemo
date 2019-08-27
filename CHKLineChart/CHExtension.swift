@@ -91,7 +91,28 @@ public extension CGFloat {
      - returns:
      */
     func ch_toString(_ minF: Int = 2, maxF: Int = 6, minI: Int = 1) -> String {
-        let valueDecimalNumber = NSDecimalNumber(value: Double(self) as Double)
+        let valueDecimalNumber = NSDecimalNumber(value: Double(self))
+        let twoDecimalPlacesFormatter = NumberFormatter()
+        twoDecimalPlacesFormatter.maximumFractionDigits = maxF
+        twoDecimalPlacesFormatter.minimumFractionDigits = minF
+        twoDecimalPlacesFormatter.minimumIntegerDigits = minI
+        return twoDecimalPlacesFormatter.string(from: valueDecimalNumber)!
+    }
+}
+
+public extension Double {
+    
+    /**
+     转化为字符串格式
+     
+     - parameter minF:
+     - parameter maxF:
+     - parameter minI:
+     
+     - returns:
+     */
+    func ch_toString(_ minF: Int = 2, maxF: Int = 6, minI: Int = 1) -> String {
+        let valueDecimalNumber = NSDecimalNumber(value: self)
         let twoDecimalPlacesFormatter = NumberFormatter()
         twoDecimalPlacesFormatter.maximumFractionDigits = maxF
         twoDecimalPlacesFormatter.minimumFractionDigits = minF

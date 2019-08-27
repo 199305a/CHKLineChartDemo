@@ -181,10 +181,10 @@ extension CHKLineChartStyle {
         
         style.enableTap = true
         //买方深度图层的颜色 UIColor(hex:0xAD6569) UIColor(hex:0x469777)
-        style.bidColor = (UIColor(hex:0xAD6569), UIColor(hex:0xAD6569), 1)
+        style.bidColor = (UIColor.ch_hex(0xAD6569), UIColor.ch_hex(0xAD6569), 1)
         //        style.askColor = (UIColor(hex:0xAD6569), UIColor(hex:0xAD6569), 1)
         //买方深度图层的颜色
-        style.askColor = (UIColor(hex:0x469777), UIColor(hex:0x469777), 1)
+        style.askColor = (UIColor.ch_hex(0x469777), UIColor.ch_hex(0x469777), 1)
         //        style.bidColor = (UIColor(hex:0x469777), UIColor(hex:0x469777), 1)
 
         return style

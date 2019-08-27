@@ -33,11 +33,6 @@
 		C5DAC45A204505BF00D16B84 /* ChartDatasFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC459204505BF00D16B84 /* ChartDatasFetcher.swift */; };
 		C5DAC45D20450B1300D16B84 /* KlineChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC45C20450B1300D16B84 /* KlineChartData.swift */; };
 		C5DAC46120453EF700D16B84 /* TickerTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46020453EF700D16B84 /* TickerTopView.swift */; };
-		C5DAC46820455C0200D16B84 /* String+CHExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46320455C0200D16B84 /* String+CHExtension.swift */; };
-		C5DAC46920455C0200D16B84 /* UIColor+CHExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46420455C0200D16B84 /* UIColor+CHExtension.swift */; };
-		C5DAC46A20455C0200D16B84 /* Double+CHExension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46520455C0200D16B84 /* Double+CHExension.swift */; };
-		C5DAC46B20455C0200D16B84 /* NSDate+CHExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46620455C0200D16B84 /* NSDate+CHExtension.swift */; };
-		C5DAC46C20455C0200D16B84 /* Int+CHExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46720455C0200D16B84 /* Int+CHExtension.swift */; };
 		C5DAC46E2045791E00D16B84 /* SelectionPopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC46D2045791E00D16B84 /* SelectionPopView.swift */; };
 		EAC91950E4ADF8C3243794DC /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2638DFE8B9DCAD20AACBB229 /* Pods_Example.framework */; };
 /* End PBXBuildFile section */
@@ -101,11 +96,6 @@
 		C5DAC459204505BF00D16B84 /* ChartDatasFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartDatasFetcher.swift; sourceTree = "<group>"; };
 		C5DAC45C20450B1300D16B84 /* KlineChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KlineChartData.swift; sourceTree = "<group>"; };
 		C5DAC46020453EF700D16B84 /* TickerTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerTopView.swift; sourceTree = "<group>"; };
-		C5DAC46320455C0200D16B84 /* String+CHExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CHExtension.swift"; sourceTree = "<group>"; };
-		C5DAC46420455C0200D16B84 /* UIColor+CHExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+CHExtension.swift"; sourceTree = "<group>"; };
-		C5DAC46520455C0200D16B84 /* Double+CHExension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Double+CHExension.swift"; sourceTree = "<group>"; };
-		C5DAC46620455C0200D16B84 /* NSDate+CHExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+CHExtension.swift"; sourceTree = "<group>"; };
-		C5DAC46720455C0200D16B84 /* Int+CHExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+CHExtension.swift"; sourceTree = "<group>"; };
 		C5DAC46D2045791E00D16B84 /* SelectionPopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPopView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -204,7 +194,6 @@
 		C5DAC4322044F39100D16B84 /* Demo */ = {
 			isa = PBXGroup;
 			children = (
-				C5DAC46220455BEF00D16B84 /* Extension */,
 				C5DAC45B20450AAA00D16B84 /* Custom */,
 				C5DAC4352044F70B00D16B84 /* DemoSelectViewController.swift */,
 				C5DAC457204500F100D16B84 /* ChartCustomViewController.swift */,
@@ -232,18 +221,6 @@
 				C5DAC46020453EF700D16B84 /* TickerTopView.swift */,
 			);
 			path = Custom;
-			sourceTree = "<group>";
-		};
-		C5DAC46220455BEF00D16B84 /* Extension */ = {
-			isa = PBXGroup;
-			children = (
-				C5DAC46520455C0200D16B84 /* Double+CHExension.swift */,
-				C5DAC46720455C0200D16B84 /* Int+CHExtension.swift */,
-				C5DAC46620455C0200D16B84 /* NSDate+CHExtension.swift */,
-				C5DAC46320455C0200D16B84 /* String+CHExtension.swift */,
-				C5DAC46420455C0200D16B84 /* UIColor+CHExtension.swift */,
-			);
-			path = Extension;
 			sourceTree = "<group>";
 		};
 		DD8A7D17C209E729A4E69DFA /* Pods */ = {
@@ -417,15 +394,12 @@
 				C10EBEC3230FFAEF00BB6A03 /* CHDynamicItem.swift in Sources */,
 				C5DAC4132044F25500D16B84 /* AppDelegate.swift in Sources */,
 				C10EBEBD230FFAEF00BB6A03 /* CHSection.swift in Sources */,
-				C5DAC46A20455C0200D16B84 /* Double+CHExension.swift in Sources */,
 				C5DAC4442044F70B00D16B84 /* DepthChartDemoViewController.swift in Sources */,
 				C5DAC46E2045791E00D16B84 /* SelectionPopView.swift in Sources */,
 				C10EBEBA230FFAEF00BB6A03 /* CHAxisModel.swift in Sources */,
 				C10EBEBE230FFAEF00BB6A03 /* CHChartModel.swift in Sources */,
 				C5DAC45A204505BF00D16B84 /* ChartDatasFetcher.swift in Sources */,
-				C5DAC46820455C0200D16B84 /* String+CHExtension.swift in Sources */,
 				C10EBEBC230FFAEF00BB6A03 /* CHKLineChart.swift in Sources */,
-				C5DAC46B20455C0200D16B84 /* NSDate+CHExtension.swift in Sources */,
 				C5DAC458204500F100D16B84 /* ChartCustomViewController.swift in Sources */,
 				C5DAC4432044F70B00D16B84 /* DemoSelectViewController.swift in Sources */,
 				C5DAC4482044F70B00D16B84 /* ChartStyles.swift in Sources */,
@@ -434,9 +408,7 @@
 				C5DAC45D20450B1300D16B84 /* KlineChartData.swift in Sources */,
 				C58173E82047E47800598AE2 /* SeriesParam.swift in Sources */,
 				C10EBEC4230FFAEF00BB6A03 /* CHChartAlgorithm.swift in Sources */,
-				C5DAC46920455C0200D16B84 /* UIColor+CHExtension.swift in Sources */,
 				C10EBEC2230FFAEF00BB6A03 /* CHShapeLayer.swift in Sources */,
-				C5DAC46C20455C0200D16B84 /* Int+CHExtension.swift in Sources */,
 				C10EBEBB230FFAEF00BB6A03 /* CHSeries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -598,6 +570,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = AW6B4FL28K;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.natai.app.chklinechart.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -615,6 +588,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = AW6B4FL28K;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.natai.app.chklinechart.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -102,13 +102,13 @@ class SeriesParam: NSObject, Codable {
         let styleParam = StyleParam.shared
         
         //分区点线样式
-        let upcolor = (UIColor(hex: styleParam.upColor), true)
-        let downcolor = (UIColor(hex: styleParam.downColor), true)
+        let upcolor = (UIColor.ch_hex(styleParam.upColor), true)
+        let downcolor = (UIColor.ch_hex(styleParam.downColor), true)
         
         let lineColors = [
-            UIColor(hex: styleParam.lineColors[0]),
-            UIColor(hex: styleParam.lineColors[1]),
-            UIColor(hex: styleParam.lineColors[2]),
+            UIColor.ch_hex(styleParam.lineColors[0]),
+            UIColor.ch_hex(styleParam.lineColors[1]),
+            UIColor.ch_hex(styleParam.lineColors[2]),
         ]
         
         switch seriesKey {
@@ -165,7 +165,7 @@ class SeriesParam: NSObject, Codable {
                     dc: lineColors[1],
                     jc: lineColors[2],
                     section: assistSection)
-                kdjSeries.title = "KDJ(\(self.params[0].value.toString()),\(self.params[1].value.toString()),\(self.params[2].value.toString()))"
+                kdjSeries.title = "KDJ(\(self.params[0].value.ch_toString()),\(self.params[1].value.ch_toString()),\(self.params[2].value.ch_toString()))"
                 
                 assistSection.series.append(kdjSeries)
             }
@@ -179,7 +179,7 @@ class SeriesParam: NSObject, Codable {
                     barc: lineColors[2],
                     upStyle: upcolor, downStyle: downcolor,
                     section: assistSection)
-                macdSeries.title = "MACD(\(self.params[0].value.toString()),\(self.params[1].value.toString()),\(self.params[2].value.toString()))"
+                macdSeries.title = "MACD(\(self.params[0].value.ch_toString()),\(self.params[1].value.ch_toString()),\(self.params[2].value.ch_toString()))"
                 macdSeries.symmetrical = true
                 
                 assistSection.series.append(macdSeries)

@@ -214,14 +214,13 @@ open class CHKLineChartView: UIView {
     open var isShowAll: Bool = false
     
     /// 显示边线上左下有
-    open var borderWidth: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.25, 0.25, 0.25, 0.25)
+    open var borderWidthTuple: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.25, 0.25, 0.25, 0.25)
     
     var lineWidth: CGFloat = 0.5
     var plotCount: Int = 0
     var rangeFrom: Int = 0                          //可见区域的开始索引位
     var rangeTo: Int = 0                            //可见区域的结束索引位
     open var range: Int = 77                             //显示在可见区域的个数
-    var borderColor: UIColor = UIColor.gray
     open var labelSize = CGSize(width: 40, height: 16)
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
@@ -283,7 +282,7 @@ open class CHKLineChartView: UIView {
             self.showXAxisOnSection = self.style.showXAxisOnSection
             self.isShowAll = self.style.isShowAll
             self.showXAxisLabel = self.style.showXAxisLabel
-            self.borderWidth = self.style.borderWidth
+            self.borderWidthTuple = self.style.borderWidth
         }
         
     }
@@ -1032,32 +1031,32 @@ extension CHKLineChartView {
         let borderPath = UIBezierPath()
         
         //画低部边线
-        if self.borderWidth.bottom > 0 {
+        if self.borderWidthTuple.bottom > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.size.height + section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidth.bottom)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.size.height + section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidthTuple.bottom)))
         
         }
         
         //画顶部边线
-        if self.borderWidth.top > 0 {
+        if self.borderWidthTuple.top > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidth.top)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidthTuple.top)))
             
         }
         
         
         //画左边线
-        if self.borderWidth.left > 0 {
+        if self.borderWidthTuple.left > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: self.borderWidthTuple.left, height: section.frame.size.height)))
         
         }
         
         
         //画右边线
-        if self.borderWidth.right > 0 {
+        if self.borderWidthTuple.right > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right - borderWidth.left, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right - borderWidthTuple.left, y: section.frame.origin.y, width: self.borderWidthTuple.left, height: section.frame.size.height)))
             
         }
         
