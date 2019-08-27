@@ -937,7 +937,7 @@ extension CHKLineChartView {
         for i in 0...section.xAxis.tickInterval {
             let offsetX = tickSpace * CGFloat(i)
             let verticalLineX = startX + offsetX
-            let labelIndex = Int(ceil(offsetX / plotWidth)) + rangeFrom - 1
+            let labelIndex = Int(max(ceil(offsetX / plotWidth), 1)) + rangeFrom - 1
             let xLabel = self.delegate?.kLineChart?(chart: self, labelOnXAxisForIndex: labelIndex) ?? ""
             let textSize = xLabel.ch_sizeWithConstrained(self.labelFont)
             let barLabelRect = CGRect(x: verticalLineX - textSize.width / 2, y: startY, width: textSize.width, height: textSize.height)
