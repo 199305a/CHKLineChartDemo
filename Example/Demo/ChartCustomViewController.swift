@@ -310,7 +310,12 @@ extension ChartCustomViewController: CHKLineChartDelegate {
     }
     
     func kLineChart(chart: CHKLineChartView, labelOnXAxisForIndex index: Int) -> String {
-        let data = self.klineDatas[index]
+        var data: KlineChartData
+        if index >= klineDatas.count {
+            data = klineDatas[klineDatas.count - 1]
+        } else {
+            data = klineDatas[index]
+        }
         let timestamp = data.time
         let dayText = Date.ch_getTimeByStamp(timestamp, format: "yyyy-MM-dd")
         let timeText = Date.ch_getTimeByStamp(timestamp, format: "MM-dd HH:mm")
