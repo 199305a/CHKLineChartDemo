@@ -455,7 +455,6 @@ extension ChartCustomViewController {
         volumeSection.valueType = .assistant
         volumeSection.key = "volume"
         volumeSection.ratios = 1
-        volumeSection.paging = true
         volumeSection.padding = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
         volumeSection.xAxis.tickInterval = 4
         volumeSection.xAxis.referenceStyle = .solid(color: UIColor(white: 0.4, alpha: 1))

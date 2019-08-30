@@ -1256,18 +1256,10 @@ extension CHKLineChartView {
      - parameter section:
      */
     func drawChart(_ section: CHSection) {
-        if section.paging {
-            //如果section以分页显示，则读取当前显示的系列
-            let serie = section.series[section.selectedIndex]
+        //不分页显示，全部系列绘制到图表上
+        for serie in section.series {
             let seriesLayer = self.drawSerie(serie)
             section.sectionLayer.addSublayer(seriesLayer)
-            
-        } else {
-            //不分页显示，全部系列绘制到图表上
-            for serie in section.series {
-                let seriesLayer = self.drawSerie(serie)
-                section.sectionLayer.addSublayer(seriesLayer)
-            }
         }
         
         self.drawLayer.addSublayer(section.sectionLayer)
@@ -1330,23 +1322,11 @@ extension CHKLineChartView {
             hideSections.append(self.sections[inSection])
         }
         for section in hideSections {
-            for (index, serie)  in section.series.enumerated() {
-                
+            for serie in section.series {
                 if key == "" {
-                    if section.paging {
-                        section.selectedIndex = 0
-                    } else {
-                        serie.hidden = hidden
-                    }
+                    serie.hidden = hidden
                 } else if serie.key == key {
-                    if section.paging {
-                        if hidden == false {
-                            section.selectedIndex = index
-                        }
-                    } else {
-                        serie.hidden = hidden
-                    }
-                    
+                    serie.hidden = hidden
                     break
                 }
             }
@@ -1682,16 +1662,7 @@ extension CHKLineChartView: UIGestureRecognizerDelegate {
         let point = sender.location(in: self)
         let (_, section) = self.getSectionByTouchPoint(point)
         if section != nil {
-            if section!.paging {
-                //显示下一页
-                section!.nextPage()
-                self.drawLayerView()
-                self.delegate?.kLineChart?(chart: self, didFlipPageSeries: section!, series: section!.series[section!.selectedIndex], seriesIndex: section!.selectedIndex)
-            } else {
-                //显示点击选中的内容
-                self.setSelectedIndexByPoint(point)
-            }
-            
+            self.setSelectedIndexByPoint(point)
         }
     }
     
@@ -1748,12 +1719,8 @@ extension CHKLineChartView: UIGestureRecognizerDelegate {
         let point = sender.location(in: self)
         let (_, section) = self.getSectionByTouchPoint(point)
         if section != nil {
-            if !section!.paging {
-                //显示点击选中的内容
-                self.setSelectedIndexByPoint(point)
-            }
-            
-//            self.drawLayerView()
+            //显示点击选中的内容
+            self.setSelectedIndexByPoint(point)
         }
     }
 }

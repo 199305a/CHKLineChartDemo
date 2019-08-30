@@ -263,7 +263,6 @@ public extension CHKLineChartStyle {
         trendSection.key = "analysis"
         trendSection.hidden = false
         trendSection.ratios = 1
-        trendSection.paging = true
         trendSection.yAxis.tickInterval = 4
         trendSection.padding = UIEdgeInsets(top: 16, left: 0, bottom: 8, right: 0)
         let kdjSeries = CHSeries.getKDJ(

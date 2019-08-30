@@ -30,7 +30,6 @@ open class CHSection: NSObject {
     open var key = ""
     open var name: String = ""                              //区域的名称
     open var hidden: Bool = false
-    open var paging: Bool = false
     open var selectedIndex: Int = 0
     open var padding: UIEdgeInsets = UIEdgeInsets.zero
     open var series = [CHSeries]()                          //每个分区包含多组系列，每个系列包含多个点线模型
@@ -216,9 +215,13 @@ extension CHSection {
         self.yAxis.isUsed = false
         var baseValueSticky = false
         var symmetrical = false
-        if self.paging {     //如果分页，计算当前选中的系列作为坐标系的数据源
-            //建立分区每条线的坐标系
-            let serie = self.series[self.selectedIndex]
+        for serie in self.series {   //不分页，计算所有系列作为坐标系的数据源
+            
+            //隐藏的不计算
+            if serie.hidden {
+                continue
+            }
+            
             baseValueSticky = serie.baseValueSticky
             symmetrical = serie.symmetrical
             for serieModel in serie.chartModels {
@@ -226,23 +229,6 @@ extension CHSection {
                 self.buildYAxisPerModel(serieModel,
                                         startIndex: startIndex,
                                         endIndex: endIndex)
-            }
-        } else {
-            for serie in self.series {   //不分页，计算所有系列作为坐标系的数据源
-                
-                //隐藏的不计算
-                if serie.hidden {
-                    continue
-                }
-                
-                baseValueSticky = serie.baseValueSticky
-                symmetrical = serie.symmetrical
-                for serieModel in serie.chartModels {
-                    serieModel.datas = datas
-                    self.buildYAxisPerModel(serieModel,
-                                            startIndex: startIndex,
-                                            endIndex: endIndex)
-                }
             }
         }
         
@@ -350,28 +336,15 @@ extension CHSection {
         if chartSelectedIndex == -1 {
             return       //没有数据返回
         }
-        
-        if self.paging {     //如果分页
-            let series = self.series[self.selectedIndex]
-            if let attributes = self.getTitleAttributesByIndex(chartSelectedIndex, series: series) {
-                self.setHeader(titles: attributes)
+
+        var titleAttr = [(title: String, color: UIColor)]()
+        for serie in self.series {   //不分页
+            if let attributes = self.getTitleAttributesByIndex(chartSelectedIndex, series: serie) {
+                titleAttr.append(contentsOf: attributes)
             }
-            
-            
-        } else {
-            var titleAttr = [(title: String, color: UIColor)]()
-            for serie in self.series {   //不分页
-                if let attributes = self.getTitleAttributesByIndex(chartSelectedIndex, series: serie) {
-                    titleAttr.append(contentsOf: attributes)
-                }
-                
-                
-            }
-            
-            self.setHeader(titles: titleAttr)
         }
         
-        
+        self.setHeader(titles: titleAttr)
     }
     
     

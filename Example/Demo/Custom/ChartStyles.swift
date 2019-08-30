@@ -269,7 +269,6 @@ public extension CHKLineChartStyle {
         trendSection.hidden = false
         trendSection.showTitle = false
         trendSection.ratios = 1
-        trendSection.paging = true
         trendSection.yAxis.referenceStyle = .none
         trendSection.yAxis.tickInterval = 2
         trendSection.padding = UIEdgeInsets(top: 10, left: 0, bottom: 8, right: 0)
@@ -451,7 +450,6 @@ public extension CHKLineChartStyle {
         trendSection.hidden = false
         trendSection.showTitle = false
         trendSection.ratios = 1
-        trendSection.paging = true
         trendSection.yAxis.referenceStyle = .none
         trendSection.yAxis.tickInterval = 2
         trendSection.padding = UIEdgeInsets(top: 10, left: 0, bottom: 8, right: 0)
