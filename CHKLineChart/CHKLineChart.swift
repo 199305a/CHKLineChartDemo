@@ -225,10 +225,14 @@ open class CHKLineChartView: UIView {
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
     
+    open var currentPrinceLineColor = UIColor.orange
+    open var currentPriceTextColor = UIColor.orange
     open var selectedLineColor: UIColor = UIColor.white
     open var selectedSightColor: UIColor = UIColor.white
     open var selectedBGColor: UIColor = UIColor(white: 0.4, alpha: 1)    //选中点的显示的框背景颜色
     open var selectedTextColor: UIColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1) //选中点的显示的文字颜色
+    var currentPriceLineView: UIView?
+    var currentPriceLabel: UILabel?
     var verticalLineView: UIView?
     var horizontalLineView: UIView?
     var selectedXAxisLabel: UILabel?
@@ -316,6 +320,20 @@ open class CHKLineChartView: UIView {
     fileprivate func initUI() {
         
         self.isMultipleTouchEnabled = true
+        
+        currentPriceLineView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: lineWidth))
+        currentPriceLineView?.isHidden = true
+        addSubview(currentPriceLineView!)
+        
+        currentPriceLabel = UILabel(frame: CGRect.zero)
+        currentPriceLabel?.isHidden = true
+        currentPriceLabel?.font = labelFont
+        currentPriceLabel?.minimumScaleFactor = 0.5
+        currentPriceLabel?.lineBreakMode = .byClipping
+        currentPriceLabel?.adjustsFontSizeToFitWidth = true
+        currentPriceLabel?.textColor = currentPriceTextColor
+        currentPriceLabel?.textAlignment = .center
+        addSubview(currentPriceLabel!)
         
         //初始化点击选择的辅助线显示
         self.verticalLineView = UIView(frame: CGRect(x: 0, y: 0, width: lineWidth, height: 0))
@@ -1260,6 +1278,7 @@ extension CHKLineChartView {
         for serie in section.series {
             let seriesLayer = self.drawSerie(serie)
             section.sectionLayer.addSublayer(seriesLayer)
+            updatePriceIndicator(in: serie)
         }
         
         self.drawLayer.addSublayer(section.sectionLayer)
@@ -1281,6 +1300,29 @@ extension CHKLineChartView {
         return serie.seriesLayer
     }
     
+    func updatePriceIndicator(in serie: CHSeries) {
+        guard let model = serie.chartModels.first, let data = model.datas.last, serie.key == CHSeriesKey.candle else { return }
+        let section = model.section!
+        let width = section.frame.size.width - section.padding.left - section.padding.right
+        
+        let currentPriceY = section.getLocalY(data.closePrice)
+        
+        currentPriceLineView?.center.y = min(section.frame.height - 10, max(20, currentPriceY))
+        currentPriceLineView?.frame.size.width = width
+        currentPriceLineView?.isHidden = false
+        bringSubviewToFront(currentPriceLineView!)
+        if currentPriceLineView?.layer.sublayers == nil {
+            let lineLayer = CAShapeLayer()
+            lineLayer.strokeColor = UIColor.orange.cgColor
+            lineLayer.lineDashPattern = [5]
+            lineLayer.lineWidth = currentPriceLineView!.frame.height
+            let linePath = UIBezierPath()
+            linePath.move(to: .zero)
+            linePath.addLine(to: CGPoint(x: width, y: 0))
+            lineLayer.path = linePath.cgPath
+            currentPriceLineView?.layer.addSublayer(lineLayer)
+        }
+    }
 }
 
 // MARK: - 公开方法

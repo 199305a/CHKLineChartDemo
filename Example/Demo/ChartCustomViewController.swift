@@ -464,7 +464,7 @@ extension ChartCustomViewController {
         
         /************** 添加主图固定的线段 **************/
         
-        /// 分时图
+        // 分时图
         let timelineSeries = CHSeries.getTimelinePrice(
             color: UIColor.ch_hex(0xAE475C),
             section: mainSection,
@@ -472,7 +472,7 @@ extension ChartCustomViewController {
             ultimateValueStyle: .circle(UIColor.ch_hex(0xAE475C), true),
             lineWidth: 2)
         timelineSeries.hidden = true
-        /// 蜡烛图
+        // 蜡烛图
         let candleSeries = CHSeries.getCandlePrice(
             upStyle: upcolor,
             downStyle: downcolor,
@@ -482,9 +482,6 @@ extension ChartCustomViewController {
             ultimateValueStyle: .arrow(UIColor(white: 0.8, alpha: 1)))
         candleSeries.showTitle = true
         candleSeries.chartModels.first?.ultimateValueStyle = .arrow(UIColor(white: 0.8, alpha: 1))
-        mainSection.series.append(timelineSeries)
-        mainSection.series.append(candleSeries)
-        
         // 分区点线样式
         let lineColors = [UIColor.ch_hex(0xDDDDDD), UIColor.ch_hex(0xF9EE30)]
         let mainMASeries = CHSeries.getPriceMA(
@@ -492,7 +489,10 @@ extension ChartCustomViewController {
             num: maNums,
             colors: lineColors,
             section: mainSection)
+        mainSection.series.append(candleSeries)
+        mainSection.series.append(timelineSeries)
         mainSection.series.append(mainMASeries)
+        
         let volumeMASeries = CHSeries.getVolumeWithMA(
             upStyle: upcolor,
             downStyle: downcolor,
