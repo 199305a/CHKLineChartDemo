@@ -65,6 +65,7 @@ open class CHChartModel {
     open var upStyle: (color: UIColor, isSolid: Bool) = (.green, true)
     //跌的颜色
     open var downStyle: (color: UIColor, isSolid: Bool) = (.red, true)
+    open var equalStyle: (color: UIColor, isSolid: Bool) = (.lightGray, true)
     open var titleColor = UIColor.white                    //标题文本的颜色
     open var datas: [CHChartItem] = [CHChartItem]()               //数据值
     open var decimal: Int = 2                                     //小数位的长度
@@ -230,16 +231,10 @@ open class CHCandleModel: CHChartModel {
      - parameter plotPaddingExt: 点与点之间间断所占点宽的比例
      */
     open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
-        
-        let serieLayer = CAShapeLayer()
-        
         let modelLayer = CAShapeLayer()
-        
-        //每个点的间隔宽度
-        let plotWidth = (self.section.frame.size.width - self.section.padding.left - self.section.padding.right) / CGFloat(endIndex - startIndex)
-        var plotPadding = plotWidth * self.plotPaddingExt
+        let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(endIndex - startIndex)
+        var plotPadding = plotWidth * plotPaddingExt
         plotPadding = plotPadding < 0.25 ? 0.25 : plotPadding
-        
         var maxValue: CGFloat = 0       //最大值的项
         var maxPoint: CGPoint?          //最大值所在坐标
         var minValue: CGFloat = CGFloat.greatestFiniteMagnitude       //最小值的项
@@ -247,134 +242,70 @@ open class CHCandleModel: CHChartModel {
         
         //循环起始到终结
         for i in stride(from: startIndex, to: endIndex, by: 1) {
-            
-            if self.key != CHSeriesKey.candle {
+            if key != CHSeriesKey.candle {
                 //不是蜡烛柱类型，要读取具体的数值才绘制
                 if self[i].value == nil {       //读取的值
                     continue  //无法计算的值不绘画
                 }
             }
-            
-            
-            var isSolid = true
-            let candleLayer = CAShapeLayer()
-            var candlePath: UIBezierPath?
-            let shadowLayer = CAShapeLayer()
-            let shadowPath = UIBezierPath()
-            shadowPath.lineWidth = 0
-            
             let item = datas[i]
-            //开始X
-            let ix = self.section.frame.origin.x + self.section.padding.left + CGFloat(i - startIndex) * plotWidth
-            //结束X
-            let iNx = self.section.frame.origin.x + self.section.padding.left + CGFloat(i + 1 - startIndex) * plotWidth
+            // 蜡烛图实体的左右 x 位置
+            let minX = section.frame.origin.x + section.padding.left + CGFloat(i - startIndex) * plotWidth + plotPadding
+            let maxX = section.frame.origin.x + section.padding.left + CGFloat(i + 1 - startIndex) * plotWidth - plotPadding
+            let openY = section.getLocalY(item.openPrice)
+            let closeY = section.getLocalY(item.closePrice)
+            let highY = section.getLocalY(item.highPrice)
+            let lowY = section.getLocalY(item.lowPrice)
             
-            //把具体的数值转为坐标系的y值
-            let iyo = self.section.getLocalY(item.openPrice)
-            let iyc = self.section.getLocalY(item.closePrice)
-            let iyh = self.section.getLocalY(item.highPrice)
-            let iyl = self.section.getLocalY(item.lowPrice)
-            
-            if iyh > iyc || iyh > iyo {
-                NSLog("highPrice = \(item.highPrice), closePrice = \(item.closePrice), openPrice = \(item.openPrice)")
-            }
-            
+            let candleLayer = CAShapeLayer()
+            candleLayer.lineWidth = lineWidth
+            var candleRect: CGRect
             switch item.trend {
             case .equal:
-                //开盘收盘一样，则显示横线
-                shadowLayer.strokeColor = self.upStyle.color.cgColor
-                isSolid = true
+                candleRect = CGRect(x: minX, y: openY, width: maxX - minX, height: lineWidth)
+                candleLayer.strokeColor = equalStyle.color.cgColor
             case .up:
-                //收盘价比开盘高，则显示涨的颜色
-                shadowLayer.strokeColor = self.upStyle.color.cgColor
-                candleLayer.strokeColor = self.upStyle.color.cgColor
-                candleLayer.fillColor = self.upStyle.color.cgColor
-                isSolid = self.upStyle.isSolid
+                candleRect = CGRect(x: minX, y: closeY, width: maxX - minX, height: openY - closeY)
+                candleLayer.strokeColor = upStyle.color.cgColor
+                candleLayer.fillColor = upStyle.isSolid ? upStyle.color.cgColor : UIColor.clear.cgColor
             case .down:
-                //收盘价比开盘低，则显示跌的颜色
-                shadowLayer.strokeColor = self.downStyle.color.cgColor
-                candleLayer.strokeColor = self.downStyle.color.cgColor
-                candleLayer.fillColor = self.downStyle.color.cgColor
-                isSolid = self.downStyle.isSolid
+                candleRect = CGRect(x: minX, y: openY, width: maxX - minX, height: closeY - openY)
+                candleLayer.strokeColor = downStyle.color.cgColor
+                candleLayer.fillColor = downStyle.isSolid ? downStyle.color.cgColor : UIColor.clear.cgColor
             }
-            
-            //1.先画最高和最低价格的线
-            if self.drawShadow {
-                shadowPath.move(to: CGPoint(x: ix + plotWidth / 2, y: iyh))
-                shadowPath.addLine(to: CGPoint(x: ix + plotWidth / 2, y: iyl))
+            let candlePath = UIBezierPath(rect: candleRect)
+            // 画最高和最低价格的线
+            if drawShadow {
+                candlePath.move(to: CGPoint(x: (minX + maxX) / 2, y: highY))
+                candlePath.addLine(to: CGPoint(x: (minX + maxX) / 2, y: lowY))
             }
+            candleLayer.path = candlePath.cgPath
+            modelLayer.addSublayer(candleLayer)
             
-            
-            
-            //2.画蜡烛柱的矩形，空心的刚好覆盖上面的线
-            switch item.trend {
-            case .equal:
-                //开盘收盘一样，则显示横线
-                shadowPath.move(to: CGPoint(x: ix + plotPadding, y: iyo))
-                shadowPath.addLine(to: CGPoint(x: iNx - plotPadding, y: iyo))
-            case .up:
-                //收盘价比开盘高，则从收盘的Y值向下画矩形
-                candlePath = UIBezierPath(rect: CGRect(x: ix + plotPadding, y: iyc, width: plotWidth - 2 * plotPadding, height: iyo - iyc))
-                
-            case .down:
-                //收盘价比开盘低，则从开盘的Y值向下画矩形
-                candlePath = UIBezierPath(rect: CGRect(x: ix + plotPadding, y: iyo, width: plotWidth - 2 *  plotPadding, height: iyc - iyo))
-                
-                
-            }
-            
-            shadowLayer.path = shadowPath.cgPath
-            modelLayer.addSublayer(shadowLayer)
-            
-            if candlePath != nil {
-                
-                //如果为自定义为空心，需要把矩形缩小lineWidth一圈。
-                if isSolid {
-                    candleLayer.lineWidth = self.lineWidth
-                } else {
-                    candleLayer.fillColor = UIColor.clear.cgColor
-                    candleLayer.lineWidth = self.lineWidth
-                }
-                
-                candleLayer.path = candlePath!.cgPath
-                modelLayer.addSublayer(candleLayer)
-            }
-            
-            
-            
-            //记录最大值信息
+            // 记录最大最小值
             if item.highPrice > maxValue {
                 maxValue = item.highPrice
-                maxPoint = CGPoint(x: ix + plotWidth / 2, y: iyh)
+                maxPoint = CGPoint(x: minX + plotWidth / 2, y: highY)
             }
-            
-            //记录最小值信息
             if item.lowPrice < minValue {
                 minValue = item.lowPrice
-                minPoint = CGPoint(x: ix + plotWidth / 2, y: iyl)
+                minPoint = CGPoint(x: minX + plotWidth / 2, y: lowY)
             }
-            
         }
         
-        serieLayer.addSublayer(modelLayer)
-        
-        //显示最大最小值
-        if self.showMaxVal && maxValue != 0 {
+        // 绘制最大最小值
+        if showMaxVal && maxValue != 0 {
             let highPrice = maxValue.ch_toString(maxF: section.decimal)
-            let maxLayer = self.drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
-            serieLayer.addSublayer(maxLayer)
+            let maxLayer = drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
+            modelLayer.addSublayer(maxLayer)
         }
-        
-        //显示最大最小值
-        if self.showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
+        if showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
             let lowPrice = minValue.ch_toString(maxF: section.decimal)
-            let minLayer = self.drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
-            serieLayer.addSublayer(minLayer)
+            let minLayer = drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
+            modelLayer.addSublayer(minLayer)
         }
-        
-        return serieLayer
+        return modelLayer
     }
-    
 }
 
 /**
@@ -390,69 +321,39 @@ open class CHColumnModel: CHChartModel {
      - parameter plotPaddingExt: 点与点之间间断所占点宽的比例
      */
     open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
-        
-        let serieLayer = CAShapeLayer()
-        
         let modelLayer = CAShapeLayer()
-        
-        //每个点的间隔宽度
-        let plotWidth = (self.section.frame.size.width - self.section.padding.left - self.section.padding.right) / CGFloat(endIndex - startIndex)
-        var plotPadding = plotWidth * self.plotPaddingExt
+        let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(endIndex - startIndex)
+        var plotPadding = plotWidth * plotPaddingExt
         plotPadding = plotPadding < 0.25 ? 0.25 : plotPadding
-        
-        let iybase = self.section.getLocalY(section.yAxis.baseValue)
-        
-        //循环起始到终结
+        let baseY = section.getLocalY(section.yAxis.baseValue)
+
         for i in stride(from: startIndex, to: endIndex, by: 1) {
-            
-            if self.key != CHSeriesKey.volume {
+            if key != CHSeriesKey.volume {
                 //不是蜡烛柱类型，要读取具体的数值才绘制
                 if self[i].value == nil {       //读取的值
                     continue  //无法计算的值不绘画
                 }
             }
             
-            var isSolid = true
             let columnLayer = CAShapeLayer()
-            
+            columnLayer.lineWidth = lineWidth
             let item = datas[i]
-            //开始X
-            let ix = self.section.frame.origin.x + self.section.padding.left + CGFloat(i - startIndex) * plotWidth
-            
-            //把具体的数值转为坐标系的y值
-            let iyv = self.section.getLocalY(item.vol)
-            
-            //收盘价比开盘低，则显示跌的颜色
+            let minX = section.frame.origin.x + section.padding.left + CGFloat(i - startIndex) * plotWidth + plotPadding
+            let maxX = section.frame.origin.x + section.padding.left + CGFloat(i + 1 - startIndex) * plotWidth - plotPadding
+            let volumeY = self.section.getLocalY(item.vol)
             switch item.trend {
             case .up, .equal:
-                //收盘价比开盘高，则显示涨的颜色
-                columnLayer.strokeColor = self.upStyle.color.cgColor
-                columnLayer.fillColor = self.upStyle.color.cgColor
-                isSolid = self.upStyle.isSolid
+                columnLayer.strokeColor = upStyle.color.cgColor
+                columnLayer.fillColor = upStyle.isSolid ? upStyle.color.cgColor : UIColor.clear.cgColor
             case .down:
-                columnLayer.strokeColor = self.downStyle.color.cgColor
-                columnLayer.fillColor = self.downStyle.color.cgColor
-                isSolid = self.downStyle.isSolid
+                columnLayer.strokeColor = downStyle.color.cgColor
+                columnLayer.fillColor = downStyle.isSolid ? downStyle.color.cgColor : UIColor.clear.cgColor
             }
-            
-            //画交易量的矩形
-            let columnPath = UIBezierPath(rect: CGRect(x: ix + plotPadding, y: iyv, width: plotWidth - 2 * plotPadding, height: iybase - iyv))
+            let columnPath = UIBezierPath(rect: CGRect(x: minX, y: volumeY, width: maxX - minX, height: baseY - volumeY))
             columnLayer.path = columnPath.cgPath
-            
-            if isSolid {
-                columnLayer.lineWidth = self.lineWidth   //不设置为0会受到抗锯齿处理导致变大
-            } else {
-                columnLayer.fillColor = UIColor.clear.cgColor
-                columnLayer.lineWidth = self.lineWidth
-            }
-            
-            
             modelLayer.addSublayer(columnLayer)
         }
-        
-        serieLayer.addSublayer(modelLayer)
-        
-        return serieLayer
+        return modelLayer
     }
     
 }

@@ -1681,8 +1681,8 @@ extension CHKLineChartView: UIGestureRecognizerDelegate {
             }
             
             //添加动力行为
-            self.animator.addBehavior(decelerationBehavior)
-            self.decelerationBehavior = decelerationBehavior
+//            self.animator.addBehavior(decelerationBehavior)
+//            self.decelerationBehavior = decelerationBehavior
 
             
         default:
