@@ -9,6 +9,9 @@
 import UIKit
 import SnapKit
 
+let screenWidth = UIScreen.main.bounds.width
+let screenHeight = UIScreen.main.bounds.height
+
 class ChartCustomViewController: UIViewController {
     
     /// 选择时间
@@ -41,14 +44,16 @@ class ChartCustomViewController: UIViewController {
     }
     /// 图表
     private lazy var chartView: CHKLineChartView = {
-        let chartView = CHKLineChartView(frame: CGRect.zero)
+        let rect = CGRect(x: 0, y: topView.frame.maxY, width: screenWidth, height: screenHeight - topView.frame.maxY - toolbar.frame.height - 64)
+        let chartView = CHKLineChartView(frame: rect)
         chartView.style = self.loadUserStyle()
         chartView.delegate = self
         return chartView
     }()
     /// 顶部数据
     private lazy var topView: TickerTopView = {
-        let view = TickerTopView(frame: CGRect.zero)
+        let rect = CGRect(x: 0, y: 0, width: screenWidth, height: 60)
+        let view = TickerTopView(frame: rect)
         return view
     }()
     /// 选择时间周期
@@ -76,7 +81,8 @@ class ChartCustomViewController: UIViewController {
     }()
     /// 工具栏
     private lazy var toolbar: UIView = {
-        let view = UIView()
+        let rect = CGRect(x: 0, y: screenHeight - 44 - 64, width: screenWidth, height: 44)
+        let view = UIView(frame: rect)
         view.backgroundColor = UIColor.ch_hex(0x242731)
         return view
     }()
@@ -176,24 +182,6 @@ extension ChartCustomViewController {
         
         self.loadingView.snp.makeConstraints { (make) in
             make.center.equalTo(self.chartView)
-        }
-        
-        self.topView.snp.makeConstraints { (make) in
-            make.top.equalTo(self.topLayoutGuide.snp.bottom)
-            make.bottom.equalTo(self.chartView.snp.top)
-            make.left.right.equalToSuperview().inset(8)
-            make.height.equalTo(60)
-        }
-        
-        self.chartView.snp.makeConstraints { (make) in
-            make.left.right.equalToSuperview()
-        }
-        
-        self.toolbar.snp.makeConstraints { (make) in
-            make.top.equalTo(self.chartView.snp.bottom)
-            make.left.right.equalToSuperview()
-            make.bottom.equalTo(self.bottomLayoutGuide.snp.top)
-            make.height.equalTo(44)
         }
         
         self.buttonTime.snp.makeConstraints { (make) in
@@ -331,15 +319,6 @@ extension ChartCustomViewController: CHKLineChartDelegate {
         return text
     }
     
-    /// 调整Y轴标签宽度
-    ///
-    /// - parameter chart:
-    ///
-    /// - returns:
-    func widthForYAxisLabelInKLineChart(in chart: CHKLineChartView) -> CGFloat {
-        return 60
-    }
-    
     /// 自定义分区图标题
     ///
     func kLineChart(chart: CHKLineChartView, titleForHeaderInSection section: CHSection, index: Int, item: CHChartItem) -> NSAttributedString? {
@@ -430,6 +409,8 @@ extension ChartCustomViewController {
         style.isInnerYAxis = true
         style.showYAxisLabel = .right
         style.padding = UIEdgeInsets.zero
+        style.yAxisLabelLayerWidth = 60
+        style.xAxisLabelLayerHeight = 16
         
         let maNums = [5, 10]
         let maArray = maNums.map { CHChartAlgorithm.ma($0) }
