@@ -45,7 +45,7 @@ public struct CHYAxis {
     public var baseValue: CGFloat = 0          //固定的基值
     public var tickInterval: Int = 4           //间断显示个数
     public var pos: Int = 0
-    public var decimal: Int = 2                //约束小数位
+    public var decimalFormat: String = "0.2"   //约束小数位
     public var isUsed = false
     public var showLast = true                 //是否显示最后一个label和辅助线
     

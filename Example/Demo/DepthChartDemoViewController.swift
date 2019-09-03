@@ -75,13 +75,13 @@ class DepthChartDemoViewController: UIViewController {
 extension DepthChartDemoViewController: CHKDepthChartDelegate {
     
     /// 价格的小数位
-    func depthChartOfDecimal(chart: CHDepthChartView) -> Int {
-        return 4
+    func depthChartOfDecimalFormat(chart: CHDepthChartView) -> String {
+        return "0.4"
     }
     
     /// 量的小数位
-    func depthChartOfVolDecimal(chart: CHDepthChartView) -> Int {
-        return 6
+    func depthChartOfVolDecimalFormat(chart: CHDepthChartView) -> String {
+        return "0.6"
     }
     
     
@@ -146,7 +146,7 @@ extension DepthChartDemoViewController: CHKDepthChartDelegate {
         if value == 0 {
             return ""
         }
-        let strValue = value.ch_toString(maxF: 0)
+        let strValue = value.ch_toString()
         return strValue
     }
 }

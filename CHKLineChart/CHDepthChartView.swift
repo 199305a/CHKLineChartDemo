@@ -134,7 +134,7 @@ open class CHKDepthChartItem: NSObject {
      
      - returns:
      */
-    @objc func depthChartOfDecimal(chart: CHDepthChartView) -> Int
+    @objc func depthChartOfDecimalFormat(chart: CHDepthChartView) -> String
     
     /**
      量的小数位长度
@@ -143,7 +143,7 @@ open class CHKDepthChartItem: NSObject {
      
      - returns:
      */
-    @objc func depthChartOfVolDecimal(chart: CHDepthChartView) -> Int
+    @objc func depthChartOfVolDecimalFormat(chart: CHDepthChartView) -> String
     
     /**
      自定义点击显示信息view
@@ -182,10 +182,10 @@ open class CHDepthChartView: UIView {
     open var yAxisLabelWidth: CGFloat = 0                    //Y轴的宽度
     
     /// 价格小数位
-    private var decimal: Int = 2
+    private var decimal: String = "0.2"
     
     /// 量小数位
-    private var numDecimal:Int = 4
+    private var numDecimal: String = "0.4"
     
     /// 内边距
     open var padding: UIEdgeInsets = UIEdgeInsets.zero
@@ -322,8 +322,8 @@ open class CHDepthChartView: UIView {
         self.bidItems.removeAll()
         self.askItems.removeAll()
         self.plotCount = self.delegate?.numberOfPointsInDepthChart(chart: self) ?? 0
-        self.decimal = self.delegate?.depthChartOfDecimal(chart: self) ?? 4
-        self.numDecimal = self.delegate?.depthChartOfVolDecimal(chart: self) ?? 4
+        self.decimal = self.delegate?.depthChartOfDecimalFormat(chart: self) ?? "0.4"
+        self.numDecimal = self.delegate?.depthChartOfVolDecimalFormat(chart: self) ?? "0.4"
         
         if plotCount > 0 {
             
@@ -676,7 +676,7 @@ extension CHDepthChartView {
         
         //计算y轴最大最小值
         //计算x轴最大最小值
-        self.yAxis.decimal = self.decimal
+        self.yAxis.decimalFormat = self.decimal
         self.yAxis.max = 0
         //        self.yAxis.min = CGFloat.greatestFiniteMagnitude
         self.yAxis.min = 0
@@ -1116,7 +1116,7 @@ extension CHDepthChartView {
             
             // 价格
             let pricelayer = CHTextLayer()
-            pricelayer.string = item.value.ch_toString(maxF:self.decimal)//String(Double(iteme.value))
+            pricelayer.string = item.value.ch_toString(withFormat: decimal)//String(Double(iteme.value))
             textRect = CGRect(x: textRect.origin.x, y: textRect.origin.y + textHeight, width: width - padding, height: textHeight)
             pricelayer.frame = textRect
             pricelayer.alignmentMode = CATextLayerAlignmentMode.left
@@ -1133,7 +1133,7 @@ extension CHDepthChartView {
                 let newValue = amount / 1000
                 amountStr = String(format: "%.0fK", newValue)
             }else {
-                amountStr = amount.ch_toString(maxF:self.numDecimal)//String(Double(amount))
+                amountStr = amount.ch_toString(withFormat: numDecimal)//String(Double(amount))
             }
             vollayer.string = amountStr
             textRect = CGRect(x: textRect.origin.x, y: textRect.origin.y + textHeight, width: width - padding, height: textHeight)

@@ -37,7 +37,7 @@ open class CHSection: NSObject {
     open var title: String = ""                                      //标题
     open var titleShowOutSide: Bool = false                          //标题是否显示在外面
     open var showTitle: Bool = true                                 //是否显示标题文本
-    open var decimal: Int = 2                                        //小数位的长度
+    open var decimal: String = "0.2"                                        //小数位的长度
     open var ratios: Int = 0                                         //所占区域比例
     open var fixHeight: CGFloat = 0                                 //固定高度，为0则通过ratio计算高度
     open var frame: CGRect = CGRect.zero
@@ -86,7 +86,7 @@ extension CHSection {
         }
         
         if !self.yAxis.isUsed {
-            self.yAxis.decimal = self.decimal
+            self.yAxis.decimalFormat = self.decimal
             
             self.yAxis.max = 0
             self.yAxis.min = CGFloat.greatestFiniteMagnitude
@@ -465,15 +465,15 @@ extension CHSection {
                 
                 
                 title += NSLocalizedString("O", comment: "") + ": " +
-                    item.openPrice.ch_toString(maxF: self.decimal) + "  "   //开始
+                    item.openPrice.ch_toString(withFormat: decimal) + "  "   //开始
                 title += NSLocalizedString("H", comment: "") + ": " +
-                    item.highPrice.ch_toString(maxF: self.decimal) + "  "   //最高
+                    item.highPrice.ch_toString(withFormat: decimal) + "  "   //最高
                 title += NSLocalizedString("L", comment: "") + ": " +
-                    item.lowPrice.ch_toString(maxF: self.decimal) + "  "    //最低
+                    item.lowPrice.ch_toString(withFormat: decimal) + "  "    //最低
                 title += NSLocalizedString("C", comment: "") + ": " +
-                    item.closePrice.ch_toString(maxF: self.decimal) + "  "  //收市
+                    item.closePrice.ch_toString(withFormat: decimal) + "  "  //收市
                 title += NSLocalizedString("R", comment: "") + ": " +
-                    amplitude.ch_toString(maxF: self.decimal) + "%   "        //振幅
+                    amplitude.ch_toString(withFormat: decimal) + "%   "        //振幅
                 
             case is CHColumnModel:
                 
@@ -481,10 +481,10 @@ extension CHSection {
                     continue  //不是量线
                 }
                 
-                title += model.title + ": " + item.vol.ch_toString(maxF: self.decimal) + "  "
+                title += model.title + ": " + item.vol.ch_toString(withFormat: decimal) + "  "
             default:
                 if item.value != nil {
-                    title += model.title + ": " + item.value!.ch_toString(maxF: self.decimal) + "  "
+                    title += model.title + ": " + item.value!.ch_toString(withFormat: decimal) + "  "
                 }  else {
                     title += model.title + ": --  "
                 }

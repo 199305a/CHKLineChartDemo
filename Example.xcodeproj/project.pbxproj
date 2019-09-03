@@ -19,6 +19,7 @@
 		C10EBEC2230FFAEF00BB6A03 /* CHShapeLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB6230FFAEE00BB6A03 /* CHShapeLayer.swift */; };
 		C10EBEC3230FFAEF00BB6A03 /* CHDynamicItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB7230FFAEE00BB6A03 /* CHDynamicItem.swift */; };
 		C10EBEC4230FFAEF00BB6A03 /* CHChartAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB8230FFAEE00BB6A03 /* CHChartAlgorithm.swift */; };
+		C15D9912231E431A0064F080 /* CHUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15D9911231E431A0064F080 /* CHUtil.swift */; };
 		C58173E82047E47800598AE2 /* SeriesParam.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58173E72047E47800598AE2 /* SeriesParam.swift */; };
 		C5DAC4132044F25500D16B84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DAC4122044F25500D16B84 /* AppDelegate.swift */; };
 		C5DAC4182044F25500D16B84 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5DAC4162044F25500D16B84 /* Main.storyboard */; };
@@ -76,6 +77,7 @@
 		C10EBEB6230FFAEE00BB6A03 /* CHShapeLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHShapeLayer.swift; sourceTree = "<group>"; };
 		C10EBEB7230FFAEE00BB6A03 /* CHDynamicItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHDynamicItem.swift; sourceTree = "<group>"; };
 		C10EBEB8230FFAEE00BB6A03 /* CHChartAlgorithm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHChartAlgorithm.swift; sourceTree = "<group>"; };
+		C15D9911231E431A0064F080 /* CHUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CHUtil.swift; sourceTree = "<group>"; };
 		C55110A720464BDC00B0BC91 /* Example_bridging_Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Example_bridging_Header.h; sourceTree = "<group>"; };
 		C58173E72047E47800598AE2 /* SeriesParam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeriesParam.swift; sourceTree = "<group>"; };
 		C5AF86992053C3A9000C7F14 /* CHKLineChartKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CHKLineChartKit.framework; path = ../Carthage/Build/iOS/CHKLineChartKit.framework; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 		C10EBEAC230FFAEE00BB6A03 /* CHKLineChart */ = {
 			isa = PBXGroup;
 			children = (
+				C15D9911231E431A0064F080 /* CHUtil.swift */,
 				C10EBEAD230FFAEE00BB6A03 /* CHExtension.swift */,
 				C10EBEAE230FFAEE00BB6A03 /* CHAxisModel.swift */,
 				C10EBEAF230FFAEE00BB6A03 /* CHSeries.swift */,
@@ -393,6 +396,7 @@
 				C5DAC46120453EF700D16B84 /* TickerTopView.swift in Sources */,
 				C10EBEC3230FFAEF00BB6A03 /* CHDynamicItem.swift in Sources */,
 				C5DAC4132044F25500D16B84 /* AppDelegate.swift in Sources */,
+				C15D9912231E431A0064F080 /* CHUtil.swift in Sources */,
 				C10EBEBD230FFAEF00BB6A03 /* CHSection.swift in Sources */,
 				C5DAC4442044F70B00D16B84 /* DepthChartDemoViewController.swift in Sources */,
 				C5DAC46E2045791E00D16B84 /* SelectionPopView.swift in Sources */,

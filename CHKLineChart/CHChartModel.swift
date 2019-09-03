@@ -128,22 +128,14 @@ open class CHLineModel: CHChartModel {
      - parameter plotPaddingExt: 点与点之间间断所占点宽的比例
      */
     open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
-        
-        let serieLayer = CAShapeLayer()
-        
         let modelLayer = CAShapeLayer()
-        modelLayer.strokeColor = self.upStyle.color.cgColor
+        modelLayer.strokeColor = upStyle.color.cgColor
         modelLayer.fillColor = UIColor.clear.cgColor
-        modelLayer.lineWidth = self.lineWidth
+        modelLayer.lineWidth = lineWidth
         modelLayer.lineCap = CAShapeLayerLineCap.round
         modelLayer.lineJoin = CAShapeLayerLineJoin.bevel
-        
-        //每个点的间隔宽度
-        let plotWidth = (self.section.frame.size.width - self.section.padding.left - self.section.padding.right) / CGFloat(endIndex - startIndex)
-        
-        //使用bezierPath画线段
+        let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(endIndex - startIndex)
         let linePath = UIBezierPath()
-        
         var maxValue: CGFloat = 0       //最大值的项
         var maxPoint: CGPoint?          //最大值所在坐标
         var minValue: CGFloat = CGFloat.greatestFiniteMagnitude       //最小值的项
@@ -153,21 +145,14 @@ open class CHLineModel: CHChartModel {
         
         //循环起始到终结
         for i in stride(from: startIndex, to: endIndex, by: 1) {
-            
             //开始的点
             guard let value = self[i].value else {
                 continue //无法计算的值不绘画
             }
             
-            //开始X
-            let ix = self.section.frame.origin.x + self.section.padding.left + CGFloat(i - startIndex) * plotWidth
-            //结束X
-            //            let iNx = self.section.frame.origin.x + self.section.padding.left + CGFloat(i + 1 - startIndex) * plotWidth
-            
-            //把具体的数值转为坐标系的y值
-            let iys = self.section.getLocalY(value)
-            //            let iye = self.section.getLocalY(valueNext!)
-            let point = CGPoint(x: ix + plotWidth / 2, y: iys)
+            let pointX = section.frame.origin.x + section.padding.left + CGFloat(i - startIndex) * plotWidth + 0.5 * plotWidth
+            let pointY = section.getLocalY(value)
+            let point = CGPoint(x: pointX, y: pointY)
             //第一个点移动路径起始
             if !isStartDraw {
                 linePath.move(to: point)
@@ -176,43 +161,31 @@ open class CHLineModel: CHChartModel {
                 linePath.addLine(to: point)
             }
             
-            //记录最大值信息
+            // 记录最大最小值信息
             if value > maxValue {
                 maxValue = value
                 maxPoint = point
             }
-            
-            //记录最小值信息
             if value < minValue {
                 minValue = value
                 minPoint = point
             }
         }
-        
         modelLayer.path = linePath.cgPath
         
-        serieLayer.addSublayer(modelLayer)
-        
-        //显示最大最小值
+        // 显示最大最小值
         if self.showMaxVal && maxValue != 0 {
-            let highPrice = maxValue.ch_toString(maxF: section.decimal)
+            let highPrice = maxValue.ch_toString(withFormat: section.decimal)
             let maxLayer = self.drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
-            
-            serieLayer.addSublayer(maxLayer)
+            modelLayer.addSublayer(maxLayer)
         }
-        
-        //显示最大最小值
         if self.showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
-            let lowPrice = minValue.ch_toString(maxF: section.decimal)
+            let lowPrice = minValue.ch_toString(withFormat: section.decimal)
             let minLayer = self.drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
-            
-            serieLayer.addSublayer(minLayer)
+            modelLayer.addSublayer(minLayer)
         }
-        
-        return serieLayer
+        return modelLayer
     }
-    
-    
 }
 
 /**
@@ -232,6 +205,7 @@ open class CHCandleModel: CHChartModel {
      */
     open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
         let modelLayer = CAShapeLayer()
+        let candlePath = UIBezierPath()
         let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(endIndex - startIndex)
         var plotPadding = plotWidth * plotPaddingExt
         plotPadding = plotPadding < 0.25 ? 0.25 : plotPadding
@@ -248,6 +222,7 @@ open class CHCandleModel: CHChartModel {
                     continue  //无法计算的值不绘画
                 }
             }
+            candlePath.removeAllPoints()
             let item = datas[i]
             // 蜡烛图实体的左右 x 位置
             let minX = section.frame.origin.x + section.padding.left + CGFloat(i - startIndex) * plotWidth + plotPadding
@@ -273,7 +248,13 @@ open class CHCandleModel: CHChartModel {
                 candleLayer.strokeColor = downStyle.color.cgColor
                 candleLayer.fillColor = downStyle.isSolid ? downStyle.color.cgColor : UIColor.clear.cgColor
             }
-            let candlePath = UIBezierPath(rect: candleRect)
+            // 画矩形
+            candlePath.move(to: candleRect.origin)
+            candlePath.addLine(to: CGPoint(x: candleRect.maxX, y: candleRect.minY))
+            candlePath.addLine(to: CGPoint(x: candleRect.maxX, y: candleRect.maxY))
+            candlePath.addLine(to: CGPoint(x: candleRect.minX, y: candleRect.maxY))
+            candlePath.close()
+            
             // 画最高和最低价格的线
             if drawShadow {
                 candlePath.move(to: CGPoint(x: (minX + maxX) / 2, y: highY))
@@ -295,12 +276,12 @@ open class CHCandleModel: CHChartModel {
         
         // 绘制最大最小值
         if showMaxVal && maxValue != 0 {
-            let highPrice = maxValue.ch_toString(maxF: section.decimal)
+            let highPrice = maxValue.ch_toString(withFormat: section.decimal)
             let maxLayer = drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
             modelLayer.addSublayer(maxLayer)
         }
         if showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
-            let lowPrice = minValue.ch_toString(maxF: section.decimal)
+            let lowPrice = minValue.ch_toString(withFormat: section.decimal)
             let minLayer = drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
             modelLayer.addSublayer(minLayer)
         }
@@ -322,6 +303,7 @@ open class CHColumnModel: CHChartModel {
      */
     open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
         let modelLayer = CAShapeLayer()
+        let columnPath = UIBezierPath()
         let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(endIndex - startIndex)
         var plotPadding = plotWidth * plotPaddingExt
         plotPadding = plotPadding < 0.25 ? 0.25 : plotPadding
@@ -335,6 +317,7 @@ open class CHColumnModel: CHChartModel {
                 }
             }
             
+            columnPath.removeAllPoints()
             let columnLayer = CAShapeLayer()
             columnLayer.lineWidth = lineWidth
             let item = datas[i]
@@ -349,13 +332,17 @@ open class CHColumnModel: CHChartModel {
                 columnLayer.strokeColor = downStyle.color.cgColor
                 columnLayer.fillColor = downStyle.isSolid ? downStyle.color.cgColor : UIColor.clear.cgColor
             }
-            let columnPath = UIBezierPath(rect: CGRect(x: minX, y: volumeY, width: maxX - minX, height: baseY - volumeY))
+            // 画矩形
+            columnPath.move(to: CGPoint(x: minX, y: volumeY))
+            columnPath.addLine(to: CGPoint(x: maxX, y: volumeY))
+            columnPath.addLine(to: CGPoint(x: maxX, y: baseY))
+            columnPath.addLine(to: CGPoint(x: minX, y: baseY))
+            columnPath.close()
             columnLayer.path = columnPath.cgPath
             modelLayer.addSublayer(columnLayer)
         }
         return modelLayer
     }
-    
 }
 
 /**
@@ -544,7 +531,7 @@ open class CHRoundModel: CHChartModel {
         
         //显示最大最小值
         if self.showMaxVal && maxValue != 0 {
-            let highPrice = maxValue.ch_toString(maxF: section.decimal)
+            let highPrice = maxValue.ch_toString(withFormat: section.decimal)
             let maxLayer = self.drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
             
             serieLayer.addSublayer(maxLayer)
@@ -552,7 +539,7 @@ open class CHRoundModel: CHChartModel {
         
         //显示最大最小值
         if self.showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
-            let lowPrice = minValue.ch_toString(maxF: section.decimal)
+            let lowPrice = minValue.ch_toString(withFormat: section.decimal)
             let minLayer = self.drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
             
             serieLayer.addSublayer(minLayer)

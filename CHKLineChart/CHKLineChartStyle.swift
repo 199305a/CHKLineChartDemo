@@ -71,6 +71,9 @@ open class CHKLineChartStyle {
     //显示y的位置，默认右边
     open var showYAxisLabel = CHYAxisShowPosition.right
     
+    /// y轴label图层宽度
+    open var yAxisLabelLayerWidth: CGFloat = 46
+    
     /// 是否把y坐标内嵌到图表仲
     open var isInnerYAxis: Bool = false
     
@@ -87,8 +90,11 @@ open class CHKLineChartStyle {
     /// 把X坐标内容显示到哪个索引分区上，默认为-1，表示最后一个，如果用户设置溢出的数值，也以最后一个
     open var showXAxisOnSection: Int = -1
     
-    /// 是否显示X轴标签
+    /// 是否显示x轴标签
     open var showXAxisLabel: Bool = true
+    
+    /// X轴标签图层高度
+    open var xAxisLabelLayerHeight: CGFloat = 16
     
     /// 是否显示所有内容
     open var isShowAll: Bool = false
@@ -157,7 +163,7 @@ public extension CHKLineChartStyle {
         let timelineSeries = CHSeries.getTimelinePrice(
             color: UIColor.ch_hex(0xAE475C),
             section: priceSection,
-            showGuide: true,
+            showGuide: false,
             ultimateValueStyle: .circle(UIColor.ch_hex(0xAE475C), true),
             lineWidth: 2)
         
@@ -169,7 +175,7 @@ public extension CHKLineChartStyle {
             downStyle: downcolor,
             titleColor: UIColor(white: 0.8, alpha: 1),
             section: priceSection,
-            showGuide: true,
+            showGuide: false,
             ultimateValueStyle: .arrow(UIColor(white: 0.8, alpha: 1)))
         
         priceSeries.showTitle = true

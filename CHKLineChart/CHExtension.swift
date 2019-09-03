@@ -71,7 +71,7 @@ public extension Date {
             return ""
         }
         let confromTimesp = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let formatter = DateFormatter()
+        let formatter = CHUtil.dateFormatter
         formatter.dateFormat = format
         time = formatter.string(from: confromTimesp)
         return time;
@@ -84,19 +84,12 @@ public extension CGFloat {
     /**
      转化为字符串格式
      
-     - parameter minF:
-     - parameter maxF:
-     - parameter minI:
+     - parameter format:
      
      - returns:
      */
-    func ch_toString(_ minF: Int = 2, maxF: Int = 6, minI: Int = 1) -> String {
-        let valueDecimalNumber = NSDecimalNumber(value: Double(self))
-        let twoDecimalPlacesFormatter = NumberFormatter()
-        twoDecimalPlacesFormatter.maximumFractionDigits = maxF
-        twoDecimalPlacesFormatter.minimumFractionDigits = minF
-        twoDecimalPlacesFormatter.minimumIntegerDigits = minI
-        return twoDecimalPlacesFormatter.string(from: valueDecimalNumber)!
+    func ch_toString(withFormat format: String = "0.2") -> String {
+        return String(format: "%\(format)f", self)
     }
 }
 

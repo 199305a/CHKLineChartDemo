@@ -7,6 +7,6 @@ target "Example" do
 
 	pod "SnapKit", "~> 4.0.0"
 	pod "MZFormSheetPresentationController"
-    pod "SwiftyJSON"
+  pod "SwiftyJSON"
 	pod "GDPerformanceView-Swift"
 end

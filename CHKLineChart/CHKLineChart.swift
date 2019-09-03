@@ -88,7 +88,7 @@ public enum CHChartSelectedPosition {
     /// - parameter decimalForSection: 分区
     ///
     /// - returns:
-    @objc optional func kLineChart(chart: CHKLineChartView, decimalAt section: Int) -> Int
+    @objc optional func kLineChart(chart: CHKLineChartView, decimalFormatAt section: Int) -> String
     
     
     /// 设置y轴标签的宽度
@@ -158,8 +158,6 @@ open class CHKLineChartView: UIView {
     let kMinRange = 13       //最小缩放范围
     let kMaxRange = 133     //最大缩放范围
     let kPerInterval = 4    //缩放的每段间隔
-    public let kYAxisLabelWidth: CGFloat = 46        //默认宽度
-    public let kXAxisHegiht: CGFloat = 16        //默认X坐标的高度
     
     /// MARK: - 成员变量
     @IBInspectable open var upColor: UIColor = UIColor.green     //升的颜色
@@ -529,7 +527,7 @@ open class CHKLineChartView: UIView {
         self.selectedXAxisLabel?.textColor = self.selectedTextColor
         
         let yaxis = section!.yAxis
-        let format = "%.".appendingFormat("%df", yaxis.decimal)
+        let format = yaxis.decimalFormat
         
         self.selectedPoint = point
         
@@ -710,7 +708,7 @@ extension CHKLineChartView {
                 (section, index) in
                 
                 //获取各section的小数保留位数
-                let decimal = self.delegate?.kLineChart?(chart: self, decimalAt: index) ?? 2
+                let decimal = self.delegate?.kLineChart?(chart: self, decimalFormatAt: index) ?? "0.2"
                 section.decimal = decimal
                 
                 //初始Y轴的数据
@@ -863,7 +861,7 @@ extension CHKLineChartView {
         var height = self.frame.size.height - (self.padding.top + self.padding.bottom)
         let width  = self.frame.size.width - (self.padding.left + self.padding.right)
         
-        let xAxisHeight = self.delegate?.heightForXAxisInKLineChart?(in: self) ?? self.kXAxisHegiht
+        let xAxisHeight = self.delegate?.heightForXAxisInKLineChart?(in: self) ?? style.yAxisLabelLayerWidth
         height = height - xAxisHeight
         
         var total = 0
@@ -897,7 +895,7 @@ extension CHKLineChartView {
             }
             
             
-            self.yAxisLabelWidth = self.delegate?.widthForYAxisLabelInKLineChart?(in: self) ?? self.kYAxisLabelWidth
+            self.yAxisLabelWidth = self.delegate?.widthForYAxisLabelInKLineChart?(in: self) ?? style.xAxisLabelLayerHeight
             
             //y轴的标签显示方位
             switch self.showYAxisLabel {
@@ -945,17 +943,17 @@ extension CHKLineChartView {
         let secPaddingLeft: CGFloat = section.padding.left
         let secPaddingRight: CGFloat = section.padding.right
         let startY = section.frame.maxY
-        //每个点的宽度（包括左右空白）
+        // 每个点的宽度（包括左右空白）
         let plotWidth = (section.frame.size.width - section.padding.left - section.padding.right) / CGFloat(rangeTo - rangeFrom)
-        //每个标签的间隔
+        // 每个纵向辅助线的间隔
         let tickSpace: CGFloat = (secWidth - secPaddingLeft - secPaddingRight) / CGFloat(section.xAxis.tickInterval)
+        let textSize = CGSize(width: tickSpace, height: style.xAxisLabelLayerHeight)
         
         var showXAxisReference = false
         for i in 0...section.xAxis.tickInterval {
             let verticalLineX = startX + tickSpace * CGFloat(i)
             let labelIndex = Int(verticalLineX / plotWidth) + rangeFrom
             let xLabel = self.delegate?.kLineChart?(chart: self, labelOnXAxisForIndex: labelIndex) ?? ""
-            let textSize = xLabel.ch_sizeWithConstrained(self.labelFont)
             let barLabelRect = CGRect(x: verticalLineX - textSize.width / 2, y: startY, width: textSize.width, height: textSize.height)
             //记录待绘制的文本
             xAxisToDraw.append((barLabelRect, xLabel))
@@ -1020,7 +1018,7 @@ extension CHKLineChartView {
             xLabelText.alignmentMode = CATextLayerAlignmentMode.center
             xLabelText.fontSize = self.labelFont.pointSize
             xLabelText.foregroundColor =  self.textColor.cgColor
-            xLabelText.backgroundColor = UIColor.clear.cgColor
+//            xLabelText.backgroundColor = UIColor.clear.cgColor
             xLabelText.contentsScale = UIScreen.main.scale
             
             xAxis.addSublayer(xLabelText)

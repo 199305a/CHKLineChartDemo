@@ -298,12 +298,13 @@ extension ChartCustomViewController: CHKLineChartDelegate {
         var strValue = ""
         if section.key == "volume" {
             if value / 1000 > 1 {
-                strValue = (value / 1000).ch_toString(maxF: section.decimal) + "K"
+                strValue = (value / 1000).ch_toString(withFormat: section.decimal) + "K"
             } else {
-                strValue = value.ch_toString(maxF: section.decimal)
+                strValue = value.ch_toString(withFormat: section.decimal)
             }
+            
         } else {
-            strValue = value.ch_toString(maxF: section.decimal)
+            strValue = value.ch_toString(withFormat: section.decimal)
         }
         
         return strValue
