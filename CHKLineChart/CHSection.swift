@@ -44,9 +44,23 @@ open class CHSection: NSObject {
     open var xAxis: CHXAxis = CHXAxis()                             //X轴参数
     open var backgroundColor: UIColor = UIColor.black
     open var index: Int = 0
-    var titleLayer: CHShapeLayer = CHShapeLayer()                           //显示标题内容的层
     var sectionLayer: CHShapeLayer = CHShapeLayer()                 //分区的绘图层
     var titleView: UIView?                                      //用户自定义的View
+    var xAxisTextLayers = [CHTextLayer]()
+    var yAxisTextLayers = [CHTextLayer]()
+    lazy var titleLayer: CHTextLayer = {
+        let pointX = frame.origin.x + padding.left + 2
+        let pointY: CGFloat = 2
+        let width = frame.width - padding.left - padding.right - 60
+        let textLayer = CHTextLayer()
+        textLayer.string = title
+        textLayer.fontSize = labelFont.pointSize
+        textLayer.backgroundColor = UIColor.clear.cgColor
+        textLayer.contentsScale = UIScreen.main.scale
+        textLayer.isWrapped = true
+        textLayer.frame = CGRect(x: pointX, y: pointY, width: width, height: frame.height - 4)
+        return textLayer
+    }()                                                         //显示标题内容的层
     
     /// 初始化分区
     ///
@@ -57,23 +71,18 @@ open class CHSection: NSObject {
         self.key = key
     }
     
-    
+    func configureSublayers() {
+        for serie in series {
+            sectionLayer.addSublayer(serie.seriesLayer)
+        }
+        sectionLayer.addSublayer(titleLayer)
+    }
     
 }
 
 
 // MARK: - 内部方法
 extension CHSection {
-    
-    /// 清空图表的子图层
-    func removeLayerView() {
-        _ = self.sectionLayer.sublayers?.map { $0.removeFromSuperlayer() }
-        self.sectionLayer.sublayers?.removeAll()
-        
-        _ = self.titleLayer.sublayers?.map { $0.removeFromSuperlayer() }
-        self.titleLayer.sublayers?.removeAll()
-    }
-    
     
     /**
      建立Y轴左边对象，由起始位到结束位
@@ -152,41 +161,9 @@ extension CHSection {
     ///
     /// - Parameter title: 标题内容
     func drawTitleForHeader(title: NSAttributedString) {
+        guard showTitle else { return }
         
-        guard self.showTitle else {
-            return
-        }
-        
-        _ = self.titleLayer.sublayers?.map { $0.removeFromSuperlayer() }
-        self.titleLayer.sublayers?.removeAll()
-        
-        var yPos: CGFloat = 0
-        var containerWidth: CGFloat = 0
-        let textSize = title.string.ch_sizeWithConstrained(self.labelFont, constraintRect: CGSize(width: self.frame.width, height: CGFloat.greatestFiniteMagnitude))
-        
-        if titleShowOutSide {
-            yPos = self.frame.origin.y - textSize.height - 4
-            containerWidth = self.frame.width
-        } else {
-            yPos = self.frame.origin.y + 2
-            containerWidth = self.frame.width - self.padding.left - self.padding.right
-        }
-        
-        let startX = self.frame.origin.x + self.padding.left + 2
-        
-        let point = CGPoint(x: startX, y: yPos)
-        
-        let titleText = CHTextLayer()
-        titleText.frame = CGRect(origin: point, size: CGSize(width: containerWidth, height: textSize.height + 20))
-        titleText.string = title
-        titleText.fontSize = self.labelFont.pointSize
-        //        titleText.foregroundColor =  self.titleColor.cgColor
-        titleText.backgroundColor = UIColor.clear.cgColor
-        titleText.contentsScale = UIScreen.main.scale
-        titleText.isWrapped = true
-        
-        self.titleLayer.addSublayer(titleText)
-        
+        titleLayer.string = title
     }
     
     //切换到下一个系列显示
@@ -271,7 +248,7 @@ extension CHSection {
     
     
     /**
-     获取y轴上标签数值对应在坐标系中的y值
+     获取y轴上标签数值对应在section中的y值
      
      - parameter val: 标签值
      
@@ -290,9 +267,9 @@ extension CHSection {
          y轴有值的区间高度 = 整个分区高度-（paddingTop+paddingBottom）
          当前y值所在位置的比例 =（当前值 - y最小值）/（y最大值 - y最小值）
          当前y值的实际的相对y轴有值的区间的高度 = 当前y值所在位置的比例 * y轴有值的区间高度
-         当前y值的实际坐标 = 分区高度 + 分区y坐标 - paddingBottom - 当前y值的实际的相对y轴有值的区间的高度
+         当前y值的实际坐标 = 分区高度 - paddingBottom - 当前y值的实际的相对y轴有值的区间的高度
          */
-        let baseY = self.frame.size.height + self.frame.origin.y - self.padding.bottom - (self.frame.size.height - self.padding.top - self.padding.bottom) * (val - min) / (max - min)
+        let baseY = self.frame.size.height - self.padding.bottom - (self.frame.size.height - self.padding.top - self.padding.bottom) * (val - min) / (max - min)
         //        NSLog("baseY(val) = \(baseY)(\(val))")
         //        NSLog("fra.size.height = \(self.frame.size.height)");
         //        NSLog("max = \(max)");

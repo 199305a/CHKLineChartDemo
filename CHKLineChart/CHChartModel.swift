@@ -222,7 +222,7 @@ open class CHCandleModel: CHChartModel {
                     continue  //无法计算的值不绘画
                 }
             }
-            candlePath.removeAllPoints()
+            
             let item = datas[i]
             // 蜡烛图实体的左右 x 位置
             let minX = section.frame.origin.x + section.padding.left + CGFloat(i - startIndex) * plotWidth + plotPadding
@@ -232,6 +232,7 @@ open class CHCandleModel: CHChartModel {
             let highY = section.getLocalY(item.highPrice)
             let lowY = section.getLocalY(item.lowPrice)
             
+            candlePath.removeAllPoints()
             let candleLayer = CAShapeLayer()
             candleLayer.lineWidth = lineWidth
             var candleRect: CGRect
