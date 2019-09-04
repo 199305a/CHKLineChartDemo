@@ -248,45 +248,47 @@ open class CHKLineChartView: UIView {
     /// 图表数据信息显示层，显示每个分区的数值内容
     var chartInfoLayer: CHShapeLayer = CHShapeLayer()
     
-    open var style: CHKLineChartStyle! {           //显示样式
-        didSet {
-            //重新配置样式
-            self.sections = self.style.sections
-            self.backgroundColor = self.style.backgroundColor
-            self.padding = self.style.padding
-            self.handlerOfAlgorithms = self.style.algorithms
-            self.lineColor = self.style.lineColor
-            self.textColor = self.style.textColor
-            self.labelFont = self.style.labelFont
-            self.yAxisShowPosition = self.style.showYAxisLabel
-            self.selectedLineColor = self.style.selectedLineColor
-            self.selectedSightColor = self.style.selectedSightColor
-            self.selectedBGColor = self.style.selectedBGColor
-            self.selectedTextColor = self.style.selectedTextColor
-            self.isInnerYAxis = self.style.isInnerYAxis
-            self.enableTap = self.style.enableTap
-            self.enablePinch = self.style.enablePinch
-            self.enablePan = self.style.enablePan
-            self.showSelection = self.style.showSelection
-            self.showXAxisOnSection = self.style.showXAxisOnSection
-            self.isShowAll = self.style.isShowAll
-            self.showXAxisLabel = self.style.showXAxisLabel
-            self.borderWidthTuple = self.style.borderWidth
-        }
-        
-    }
+    private var style: CHKLineChartStyle
     
-    public override init(frame: CGRect) {
+    init(frame: CGRect, style: CHKLineChartStyle) {
+        self.style = style
         super.init(frame: frame)
-        self.initUI()
+        configureChartStyle()
+        initUI()
+        configureSublayer()
     }
     
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configureChartStyle() {
+        backgroundColor = style.backgroundColor
+        sections = style.sections
+        padding = style.padding
+        handlerOfAlgorithms = style.algorithms
+        lineColor = style.lineColor
+        textColor = style.textColor
+        labelFont = style.labelFont
+        yAxisShowPosition = style.showYAxisLabel
+        selectedLineColor = style.selectedLineColor
+        selectedSightColor = style.selectedSightColor
+        selectedBGColor = style.selectedBGColor
+        selectedTextColor = style.selectedTextColor
+        isInnerYAxis = style.isInnerYAxis
+        enableTap = style.enableTap
+        enablePinch = style.enablePinch
+        enablePan = style.enablePan
+        showSelection = style.showSelection
+        showXAxisOnSection = style.showXAxisOnSection
+        isShowAll = style.isShowAll
+        showXAxisLabel = style.showXAxisLabel
+        borderWidthTuple = style.borderWidth
+    }
+    
     private func configureSublayer() {
-        
+        configureBackgroundLayer()
+        configureSection()
     }
     
     private func configureBackgroundLayer() {
@@ -301,20 +303,22 @@ open class CHKLineChartView: UIView {
         // 计算实际的显示高度和宽度
         var restHeight = frame.size.height - (padding.top + padding.bottom) - style.xAxisLabelLayerHeight
         let restWidth  = frame.size.width - (padding.left + padding.right)
+        
         var total = 0
-        var offsetY = padding.top
-        //计算每个区域的高度，并绘制
         for (index, section) in sections.enumerated() {
             section.index = index
-            if section.hidden {
-                continue
-            } else {
+            if !section.hidden {
                 //如果使用fixHeight，ratios要设置为0
                 if section.ratios > 0 {
                     total = total + section.ratios
                 }
             }
-            
+        }
+        
+        var offsetY = padding.top
+        //计算每个区域的高度，并绘制
+        for (index, section) in sections.enumerated() {
+            section.index = index
             var heightOfSection: CGFloat = 0
             let widthOfSection = restWidth
             //计算每个区域的高度
@@ -326,7 +330,7 @@ open class CHKLineChartView: UIView {
                 heightOfSection = restHeight * CGFloat(section.ratios) / CGFloat(total)
             }
             //y轴的标签显示方位
-            switch self.yAxisShowPosition {
+            switch yAxisShowPosition {
             case .left:         //左边显示
                 section.padding.left = isInnerYAxis ? section.padding.left : style.yAxisLabelLayerWidth
                 section.padding.right = 0
@@ -338,10 +342,12 @@ open class CHKLineChartView: UIView {
                 section.padding.right = 0
             }
             //计算每个section的坐标
-            section.frame = CGRect(x: 0 + padding.left, y: offsetY, width: widthOfSection, height: heightOfSection)
+            let rect = CGRect(x: 0 + padding.left, y: offsetY, width: widthOfSection, height: heightOfSection)
+            section.frame = rect
+            section.sectionLayer.frame = rect
             offsetY = offsetY + section.frame.height
             //如果这个分区设置为显示X轴，下一个分区的Y起始位要加上X轴高度
-            if self.showXAxisOnSection == index {
+            if showXAxisOnSection == index {
                 offsetY = offsetY + style.xAxisLabelLayerHeight
             }
             
@@ -351,11 +357,11 @@ open class CHKLineChartView: UIView {
     
     private func configureSectionLayer(of section: CHSection) {
         // 画分区的背景
-        let sectionPath = UIBezierPath(rect: section.frame)
-        let sectionLayer = CHShapeLayer()
-        sectionLayer.fillColor = section.backgroundColor.cgColor
-        sectionLayer.path = sectionPath.cgPath
-        drawLayer.addSublayer(sectionLayer)
+        let sectionBackgroundPath = UIBezierPath(rect: section.frame)
+        let sectionBackgroundLayer = CHShapeLayer()
+        sectionBackgroundLayer.fillColor = section.backgroundColor.cgColor
+        sectionBackgroundLayer.path = sectionBackgroundPath.cgPath
+        drawLayer.addSublayer(sectionBackgroundLayer)
         
         let borderPath = UIBezierPath()
         // 画底部边线
@@ -367,7 +373,6 @@ open class CHKLineChartView: UIView {
                 height: borderWidthTuple.bottom
             )
             borderPath.append(UIBezierPath(rect: rect))
-            
         }
         // 画顶部边线
         if self.borderWidthTuple.top > 0 {
@@ -405,14 +410,17 @@ open class CHKLineChartView: UIView {
         borderLayer.path = borderPath.cgPath  // 从贝塞尔曲线获取到形状
         borderLayer.fillColor = lineColor.cgColor // 闭环填充的颜色
         drawLayer.addSublayer(borderLayer)
+        
+        drawLayer.addSublayer(section.sectionLayer)
+        drawLayer.addSublayer(section.titleLayer)
+        
+        configureYAxisReferenceLayer(in: section)
     }
     
-    private func configureYAxisGuideLayer(of section: CHSection) {
-        var guideTexts = [(CGRect, String)]()
+    private func configureYAxisReferenceLayer(in section: CHSection) {
         var originX: CGFloat = 0
         var originY: CGFloat = 0
         var extrude: CGFloat = 0
-        var showYAxisLabel = true
         var showYAxisReference = true
         
         // 控制y轴的label在左还是右显示
@@ -423,19 +431,29 @@ open class CHKLineChartView: UIView {
         case .right:
             originX = section.frame.maxX - style.yAxisLabelLayerWidth + 3 * (isInnerYAxis ? -1 : 1)
             extrude = section.frame.origin.x + section.padding.left + section.frame.size.width - section.padding.right
-        case .none:
-            showYAxisLabel = false
+        case .none: break
         }
         
-        let guideValues = getGuideValues(in: section)
-        for (index, guideValue) in guideValues.enumerated() {
-            let guideY = section.getLocalY(guideValue)
+        let showXAxisTexts = sections.firstIndex(of: section) == showXAxisOnSection
+        let xAxisTextsHeight = showXAxisTexts ? style.xAxisLabelLayerHeight : 0
+        let restHeight = section.frame.size.height - (section.padding.top + section.padding.bottom) - xAxisTextsHeight
+        let step = restHeight / CGFloat(section.yAxis.tickInterval)
+        var textRects = [CGRect]()
+        
+        for index in 0...section.yAxis.tickInterval {
+            if index == section.yAxis.tickInterval && !section.yAxis.showLast {
+                break
+            }
+            
+            let referenceY = step * CGFloat(index) + section.padding.top
             if isInnerYAxis {
                 // y轴标签向内显示，为了不挡住辅助线，所以把y轴的数值位置向上移一些
-                originY = guideY - 14
+                originY = referenceY - 14
             } else {
-                originY = guideY - 7
+                originY = referenceY - 7
             }
+            let textRect = CGRect(x: originX, y: originY, width: style.yAxisLabelLayerWidth, height: 12)
+            textRects.append(textRect)
             
             let referencePath = UIBezierPath()
             let referenceLayer = CHShapeLayer()
@@ -456,58 +474,92 @@ open class CHKLineChartView: UIView {
             if showYAxisReference {
                 // 突出的线段，y轴向外显示才划突出线段
                 if !isInnerYAxis {
-                    referencePath.move(to: CGPoint(x: extrude, y: guideY))
-                    referencePath.addLine(to: CGPoint(x: extrude + 2, y: guideY))
+                    referencePath.move(to: CGPoint(x: extrude, y: referenceY))
+                    referencePath.addLine(to: CGPoint(x: extrude + 2, y: referenceY))
                 }
-                referencePath.move(to: CGPoint(x: section.frame.origin.x + section.padding.left, y: guideY))
-                referencePath.addLine(to: CGPoint(x: section.frame.origin.x + section.frame.size.width - section.padding.right, y: guideY))
+                referencePath.move(to: CGPoint(x: section.frame.origin.x + section.padding.left, y: referenceY))
+                referencePath.addLine(to: CGPoint(x: section.frame.origin.x + section.frame.size.width - section.padding.right, y: referenceY))
                 referenceLayer.path = referencePath.cgPath
-                drawLayer.addSublayer(referenceLayer)
+                section.sectionLayer.addSublayer(referenceLayer)
             }
-            // 绘制标签
-            if showYAxisLabel {
-                //获取调用者回调的label字符串值
-                let text = delegate?.kLineChart(chart: self, labelOnYAxisForValue: guideValue, atIndex: index, section: section) ?? ""
-                let textRect = CGRect(x: originX, y: originY, width: style.yAxisLabelLayerWidth, height: 12)
-                guideTexts.append((textRect, text))
-            }
+        }
+        
+        configureYAxisTextLayers(in: section, rects: textRects)
+    }
+    
+    private func configureYAxisTextLayers(in section: CHSection, rects: [CGRect]) {
+        var alignmentMode: CATextLayerAlignmentMode
+        switch yAxisShowPosition {
+        case .left:
+            alignmentMode = isInnerYAxis ? .left : .right
+        case .right:
+            alignmentMode = isInnerYAxis ? .right : .left
+        case .none:
+            alignmentMode = .left
+        }
+        
+        for rect in rects {
+            let textLayer = CHTextLayer()
+            textLayer.frame = rect
+            textLayer.string = "111"
+            textLayer.fontSize = labelFont.pointSize
+            textLayer.foregroundColor =  textColor.cgColor
+            textLayer.backgroundColor = UIColor.clear.cgColor
+            textLayer.alignmentMode = alignmentMode
+            textLayer.contentsScale = UIScreen.main.scale
+            yAxisTextLayers.append(textLayer)
+            section.sectionLayer.addSublayer(textLayer)
         }
     }
     
-    private func getGuideValues(in section: CHSection) -> Set<CGFloat> {
-        var guideValues = Set<CGFloat>()
+    private func updateYAxisTexts(in section: CHSection) {
+        var showYAxisLabel: Bool
+        switch section.yAxis.referenceStyle {
+        case .dash(_, _), .solid(_):
+            showYAxisLabel = true
+        case .none:
+            showYAxisLabel = false
+        }
+        guard showYAxisLabel else { return }
+        
+        let referenceValues = getReferenceValues(in: section)
+        guard referenceValues.count == yAxisTextLayers.count else { return }
+        
+        for (index, referenceValue) in referenceValues.enumerated() {
+            let textLayer = yAxisTextLayers[index]
+            let text = delegate?.kLineChart(chart: self, labelOnYAxisForValue: referenceValue, atIndex: index, section: section) ?? ""
+            textLayer.string = text
+        }
+    }
+    
+    private func getReferenceValues(in section: CHSection) -> Set<CGFloat> {
+        var referenceValues = Set<CGFloat>()
         let yaxis = section.yAxis
         // 计算y轴的标签及辅助线分几段
         let step = (yaxis.max - yaxis.min) / CGFloat(yaxis.tickInterval)
         // 从base值绘制Y轴标签到最大值
         var i = 0
-        var guideValue = yaxis.baseValue + CGFloat(i) * step
-        while guideValue <= yaxis.max && i <= yaxis.tickInterval {
-            guideValues.insert(guideValue)
+        var referenceValue = yaxis.baseValue + CGFloat(i) * step
+        while referenceValue <= yaxis.max && i <= yaxis.tickInterval {
+            referenceValues.insert(referenceValue)
             i =  i + 1
-            guideValue = yaxis.baseValue + CGFloat(i) * step
+            referenceValue = yaxis.baseValue + CGFloat(i) * step
         }
         i = 0
-        guideValue = yaxis.baseValue - CGFloat(i) * step
-        while guideValue >= yaxis.min && i <= yaxis.tickInterval {
-            guideValues.insert(guideValue)
+        referenceValue = yaxis.baseValue - CGFloat(i) * step
+        while referenceValue >= yaxis.min && i <= yaxis.tickInterval {
+            referenceValues.insert(referenceValue)
             i =  i + 1
-            guideValue = yaxis.baseValue - CGFloat(i) * step
+            referenceValue = yaxis.baseValue - CGFloat(i) * step
         }
         // 是否不显示最后一个标签及辅助线
         if !section.yAxis.showLast {
-            var sortedValue = guideValues.sorted(by: >)
+            var sortedValue = referenceValues.sorted(by: >)
             sortedValue.removeLast()
-            guideValues = Set(sortedValue)
+            referenceValues = Set(sortedValue)
         }
-        return guideValues
+        return referenceValues
     }
-    
-//    convenience init(style: CHKLineChartStyle) {
-//        self.init()
-//        self.initUI()
-//        self.style = style
-//    }
     
     /**
      初始化UI
@@ -894,75 +946,110 @@ extension CHKLineChartView {
         
         //先清空图层
         self.removeLayerView()
-        
+
         //初始化数据
         if self.initChart() {
-            
-            
+
+
             /// 待绘制的x坐标标签
-            var xAxisToDraw = [(CGRect, String)]()
-            
-            //建立每个分区
-            self.buildSections {
-                (section, index) in
-                
+//            var xAxisToDraw = [(CGRect, String)]()
+
+            for (index, section) in sections.enumerated() {
                 //获取各section的小数保留位数
-                let decimal = self.delegate?.kLineChart?(chart: self, decimalFormatAt: index) ?? "0.2"
+                let decimal = delegate?.kLineChart?(chart: self, decimalFormatAt: index) ?? "0.2"
                 section.decimal = decimal
-                
                 //初始Y轴的数据
-                self.initYAxis(section)
-                
-                //绘制每个区域
-                self.drawSection(section)
-                
-                //绘制X轴坐标系，先绘制辅助线，记录标签位置，
-                //返回出来，最后才在需要显示的分区上绘制
-                xAxisToDraw = self.drawXAxis(section)
-                
-                //绘制Y轴坐标系，但最后的y轴标签放到绘制完线段才做
-                let yAxisToDraw = self.drawYAxis(section)
+                initYAxis(section)
+
+                updateYAxisTexts(in: section)
                 //绘制图表的点线
-                self.drawChart(section)
-                //绘制Y轴坐标上的标签
-                self.drawYAxisLabel(yAxisToDraw)
-                
-                //把标题添加到主绘图层上
-                self.drawLayer.addSublayer(section.titleLayer)
-                
-                //是否采用用户自定义
-                if let titleView = self.delegate?.kLineChart?(chart: self, viewForHeaderInSection: index) {
-                    
-                    //显示用户自定义的View，显示内容交由委托者
-                    section.showTitle = false
-                    section.addCustomView(titleView, inView: self)
-                    
-                } else {
-                    
-                    if let titleString = self.delegate?.kLineChart?(chart: self,
-                                                                   titleForHeaderInSection: section,
-                                                                   index: self.selectedIndex,
-                                                                   item: self.datas[self.selectedIndex]) {
-                        //显示用户自定义的section title
-                        section.drawTitleForHeader(title: titleString)
-                    } else {
-                        //显示范围最后一个点的内容
-                        section.drawTitle(self.selectedIndex)
-                    }
-                    
-                    
-                }
-                
+                drawChart(section)
+
+//                //是否采用用户自定义
+//                if let titleView = self.delegate?.kLineChart?(chart: self, viewForHeaderInSection: index) {
+//
+//                    //显示用户自定义的View，显示内容交由委托者
+//                    section.showTitle = false
+//                    section.addCustomView(titleView, inView: self)
+//
+//                } else {
+//
+//                    if let titleString = self.delegate?.kLineChart?(chart: self,
+//                                                                    titleForHeaderInSection: section,
+//                                                                    index: self.selectedIndex,
+//                                                                    item: self.datas[self.selectedIndex]) {
+//                        //显示用户自定义的section title
+//                        section.drawTitleForHeader(title: titleString)
+//                    } else {
+//                        //显示范围最后一个点的内容
+//                        section.drawTitle(self.selectedIndex)
+//                    }
+//
+//
+//                }
             }
-            
-            if let showXAxisSection = self.getSecionWhichShowXAxis() {
-                //显示在分区下面绘制X轴坐标
-                self.drawXAxisLabel(showXAxisSection, xAxisToDraw: xAxisToDraw)
-            }
-            
+
+//            //建立每个分区
+//            self.buildSections {
+//                (section, index) in
+//
+//                //获取各section的小数保留位数
+//                let decimal = self.delegate?.kLineChart?(chart: self, decimalFormatAt: index) ?? "0.2"
+//                section.decimal = decimal
+//
+//                //初始Y轴的数据
+//                self.initYAxis(section)
+//
+//                //绘制每个区域
+//                self.drawSection(section)
+//
+//                //绘制X轴坐标系，先绘制辅助线，记录标签位置，
+//                //返回出来，最后才在需要显示的分区上绘制
+//                xAxisToDraw = self.drawXAxis(section)
+//
+//                //绘制Y轴坐标系，但最后的y轴标签放到绘制完线段才做
+//                let yAxisToDraw = self.drawYAxis(section)
+//                //绘制图表的点线
+//                self.drawChart(section)
+//                //绘制Y轴坐标上的标签
+//                self.drawYAxisLabel(yAxisToDraw)
+//
+//                //把标题添加到主绘图层上
+//                self.drawLayer.addSublayer(section.titleLayer)
+//
+//                //是否采用用户自定义
+//                if let titleView = self.delegate?.kLineChart?(chart: self, viewForHeaderInSection: index) {
+//
+//                    //显示用户自定义的View，显示内容交由委托者
+//                    section.showTitle = false
+//                    section.addCustomView(titleView, inView: self)
+//
+//                } else {
+//
+//                    if let titleString = self.delegate?.kLineChart?(chart: self,
+//                                                                   titleForHeaderInSection: section,
+//                                                                   index: self.selectedIndex,
+//                                                                   item: self.datas[self.selectedIndex]) {
+//                        //显示用户自定义的section title
+//                        section.drawTitleForHeader(title: titleString)
+//                    } else {
+//                        //显示范围最后一个点的内容
+//                        section.drawTitle(self.selectedIndex)
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//            if let showXAxisSection = self.getSecionWhichShowXAxis() {
+//                //显示在分区下面绘制X轴坐标
+//                self.drawXAxisLabel(showXAxisSection, xAxisToDraw: xAxisToDraw)
+//            }
+
             //重新显示点击选中的坐标
             //self.setSelectedIndexByPoint(self.selectedPoint)
-            
+
             self.delegate?.didFinishKLineChartRefresh?(chart: self)
         }
         

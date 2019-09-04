@@ -45,8 +45,7 @@ class ChartCustomViewController: UIViewController {
     /// 图表
     private lazy var chartView: CHKLineChartView = {
         let rect = CGRect(x: 0, y: topView.frame.maxY, width: screenWidth, height: screenHeight - topView.frame.maxY - toolbar.frame.height - 64)
-        let chartView = CHKLineChartView(frame: rect)
-        chartView.style = self.loadUserStyle()
+        let chartView = CHKLineChartView(frame: rect, style: loadUserStyle())
         chartView.delegate = self
         return chartView
     }()

@@ -15,7 +15,6 @@
 		C10EBEBE230FFAEF00BB6A03 /* CHChartModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB2230FFAEE00BB6A03 /* CHChartModel.swift */; };
 		C10EBEBF230FFAEF00BB6A03 /* CHKLineChartStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB3230FFAEE00BB6A03 /* CHKLineChartStyle.swift */; };
 		C10EBEC0230FFAEF00BB6A03 /* CHDepthChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB4230FFAEE00BB6A03 /* CHDepthChartView.swift */; };
-		C10EBEC1230FFAEF00BB6A03 /* CHChartImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB5230FFAEE00BB6A03 /* CHChartImageGenerator.swift */; };
 		C10EBEC2230FFAEF00BB6A03 /* CHShapeLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB6230FFAEE00BB6A03 /* CHShapeLayer.swift */; };
 		C10EBEC3230FFAEF00BB6A03 /* CHDynamicItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB7230FFAEE00BB6A03 /* CHDynamicItem.swift */; };
 		C10EBEC4230FFAEF00BB6A03 /* CHChartAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10EBEB8230FFAEE00BB6A03 /* CHChartAlgorithm.swift */; };
@@ -73,7 +72,6 @@
 		C10EBEB2230FFAEE00BB6A03 /* CHChartModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHChartModel.swift; sourceTree = "<group>"; };
 		C10EBEB3230FFAEE00BB6A03 /* CHKLineChartStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHKLineChartStyle.swift; sourceTree = "<group>"; };
 		C10EBEB4230FFAEE00BB6A03 /* CHDepthChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHDepthChartView.swift; sourceTree = "<group>"; };
-		C10EBEB5230FFAEE00BB6A03 /* CHChartImageGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHChartImageGenerator.swift; sourceTree = "<group>"; };
 		C10EBEB6230FFAEE00BB6A03 /* CHShapeLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHShapeLayer.swift; sourceTree = "<group>"; };
 		C10EBEB7230FFAEE00BB6A03 /* CHDynamicItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHDynamicItem.swift; sourceTree = "<group>"; };
 		C10EBEB8230FFAEE00BB6A03 /* CHChartAlgorithm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHChartAlgorithm.swift; sourceTree = "<group>"; };
@@ -141,7 +139,6 @@
 				C10EBEB2230FFAEE00BB6A03 /* CHChartModel.swift */,
 				C10EBEB3230FFAEE00BB6A03 /* CHKLineChartStyle.swift */,
 				C10EBEB4230FFAEE00BB6A03 /* CHDepthChartView.swift */,
-				C10EBEB5230FFAEE00BB6A03 /* CHChartImageGenerator.swift */,
 				C10EBEB6230FFAEE00BB6A03 /* CHShapeLayer.swift */,
 				C10EBEB7230FFAEE00BB6A03 /* CHDynamicItem.swift */,
 				C10EBEB8230FFAEE00BB6A03 /* CHChartAlgorithm.swift */,
@@ -392,7 +389,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C10EBEC0230FFAEF00BB6A03 /* CHDepthChartView.swift in Sources */,
-				C10EBEC1230FFAEF00BB6A03 /* CHChartImageGenerator.swift in Sources */,
 				C5DAC46120453EF700D16B84 /* TickerTopView.swift in Sources */,
 				C10EBEC3230FFAEF00BB6A03 /* CHDynamicItem.swift in Sources */,
 				C5DAC4132044F25500D16B84 /* AppDelegate.swift in Sources */,

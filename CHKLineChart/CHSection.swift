@@ -33,7 +33,6 @@ open class CHSection: NSObject {
     open var selectedIndex: Int = 0
     open var padding: UIEdgeInsets = UIEdgeInsets.zero
     open var series = [CHSeries]()                          //每个分区包含多组系列，每个系列包含多个点线模型
-    open var tickInterval: Int = 0
     open var title: String = ""                                      //标题
     open var titleShowOutSide: Bool = false                          //标题是否显示在外面
     open var showTitle: Bool = true                                 //是否显示标题文本
