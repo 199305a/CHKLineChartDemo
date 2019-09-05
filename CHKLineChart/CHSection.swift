@@ -68,7 +68,7 @@ open class CHSection: NSObject {
     func configureTitleLayer() {
         let pointX = frame.origin.x + padding.left + 2
         let pointY: CGFloat = 2
-        let width = frame.width - padding.left - padding.right - 60
+        let width = frame.width - padding.left - padding.right
         titleLayer.string = title
         titleLayer.fontSize = labelFont.pointSize
         titleLayer.backgroundColor = UIColor.clear.cgColor

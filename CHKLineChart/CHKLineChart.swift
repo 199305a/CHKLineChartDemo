@@ -202,6 +202,7 @@ open class CHKLineChartView: UIView {
     var plotCount: Int = 0
     var rangeFrom: Int = 0                          //可见区域的开始索引位
     var rangeTo: Int = 0                            //可见区域的结束索引位
+    let defaultRange = 77
     open var range: Int = 77                             //显示在可见区域的个数
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
@@ -1291,6 +1292,10 @@ extension CHKLineChartView {
             }
         }
         
+    }
+    
+    func resetDrawRange() {
+        range = defaultRange
     }
     
     
