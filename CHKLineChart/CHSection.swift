@@ -44,23 +44,11 @@ open class CHSection: NSObject {
     open var xAxis: CHXAxis = CHXAxis()                             //X轴参数
     open var backgroundColor: UIColor = UIColor.black
     open var index: Int = 0
+    var titleLayer = CHTextLayer()                             //显示标题内容的层
     var sectionLayer: CHShapeLayer = CHShapeLayer()                 //分区的绘图层
     var titleView: UIView?                                      //用户自定义的View
     var xAxisTextLayers = [CHTextLayer]()
     var yAxisTextLayers = [CHTextLayer]()
-    lazy var titleLayer: CHTextLayer = {
-        let pointX = frame.origin.x + padding.left + 2
-        let pointY: CGFloat = 2
-        let width = frame.width - padding.left - padding.right - 60
-        let textLayer = CHTextLayer()
-        textLayer.string = title
-        textLayer.fontSize = labelFont.pointSize
-        textLayer.backgroundColor = UIColor.clear.cgColor
-        textLayer.contentsScale = UIScreen.main.scale
-        textLayer.isWrapped = true
-        textLayer.frame = CGRect(x: pointX, y: pointY, width: width, height: frame.height - 4)
-        return textLayer
-    }()                                                         //显示标题内容的层
     
     /// 初始化分区
     ///
@@ -71,13 +59,24 @@ open class CHSection: NSObject {
         self.key = key
     }
     
-    func configureSublayers() {
+    func configureSeriesLayer() {
         for serie in series {
             sectionLayer.addSublayer(serie.seriesLayer)
         }
-        sectionLayer.addSublayer(titleLayer)
     }
     
+    func configureTitleLayer() {
+        let pointX = frame.origin.x + padding.left + 2
+        let pointY: CGFloat = 2
+        let width = frame.width - padding.left - padding.right - 60
+        titleLayer.string = title
+        titleLayer.fontSize = labelFont.pointSize
+        titleLayer.backgroundColor = UIColor.clear.cgColor
+        titleLayer.contentsScale = UIScreen.main.scale
+        titleLayer.isWrapped = true
+        titleLayer.frame = CGRect(x: pointX, y: pointY, width: width, height: frame.height - 4)
+        sectionLayer.addSublayer(titleLayer)
+    }
 }
 
 
@@ -304,14 +303,7 @@ extension CHSection {
      画分区的标题
      */
     public func drawTitle(_ chartSelectedIndex: Int) {
-        
-        guard self.showTitle else {
-            return
-        }
-        
-        if chartSelectedIndex == -1 {
-            return       //没有数据返回
-        }
+        guard self.showTitle, chartSelectedIndex != -1 else { return }
 
         var titleAttr = [(title: String, color: UIColor)]()
         for serie in self.series {   //不分页
@@ -400,17 +392,8 @@ extension CHSection {
     ///   - series: 线
     /// - Returns: 标题属性
     public func getTitleAttributesByIndex(_ chartSelectedIndex: Int, series: CHSeries) -> [(title: String, color: UIColor)]? {
-        
-        if series.hidden {
+        guard !series.hidden, series.showTitle, chartSelectedIndex != -1 else {
             return nil
-        }
-        
-        guard series.showTitle else {
-            return nil
-        }
-        
-        if chartSelectedIndex == -1 {
-            return nil      //没有数据返回
         }
         
         var titleAttr = [(title: String, color: UIColor)]()
