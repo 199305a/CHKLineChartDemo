@@ -405,7 +405,7 @@ extension ChartCustomViewController {
         style.selectedBGColor = UIColor(white: 0.4, alpha: 1)
         style.selectedTextColor = UIColor.white
         style.backgroundColor = backgroundColor
-        style.isInnerYAxis = true
+        style.isInnerYAxis = false
         style.showYAxisLabel = .right
         style.padding = UIEdgeInsets.zero
         style.yAxisLabelLayerWidth = 60

@@ -180,8 +180,8 @@ open class CHKLineChartView: UIView {
         didSet {
             self.selectedXAxisLabel?.isHidden = !self.showSelection
             self.selectedYAxisLabel?.isHidden = !self.showSelection
-            self.verticalLineView?.isHidden = !self.showSelection
-            self.horizontalLineView?.isHidden = !self.showSelection
+            self.selectedYAxisLineView?.isHidden = !self.showSelection
+            self.selectedXAxisLineView?.isHidden = !self.showSelection
             self.sightView?.isHidden = !self.showSelection
         }
     }
@@ -203,7 +203,6 @@ open class CHKLineChartView: UIView {
     var rangeFrom: Int = 0                          //可见区域的开始索引位
     var rangeTo: Int = 0                            //可见区域的结束索引位
     open var range: Int = 77                             //显示在可见区域的个数
-    open var labelSize = CGSize(width: 40, height: 16)
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
     
@@ -215,11 +214,12 @@ open class CHKLineChartView: UIView {
     open var selectedTextColor: UIColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1) //选中点的显示的文字颜色
     var currentPriceLineView: UIView?
     var currentPriceLabel: UILabel?
-    var verticalLineView: UIView?
-    var horizontalLineView: UIView?
+    var selectedYAxisLineView: UIView?
+    var selectedXAxisLineView: UIView?
     var selectedXAxisLabel: UILabel?
     var selectedYAxisLabel: UILabel?
     var sightView: UIView?       //点击出现的准星
+    var yAxisLabelHeight: CGFloat = 16
     
     //动力学引擎
     lazy var animator: UIDynamicAnimator = UIDynamicAnimator(referenceView: self)
@@ -251,8 +251,8 @@ open class CHKLineChartView: UIView {
         self.style = style
         super.init(frame: frame)
         configureChartStyle()
-        initUI()
         configureSublayer()
+        initUI()
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -607,13 +607,17 @@ open class CHKLineChartView: UIView {
      */
     fileprivate func initUI() {
         
+        //绘画图层
+        self.layer.addSublayer(self.drawLayer)
+        
         self.isMultipleTouchEnabled = true
         
-        currentPriceLineView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: lineWidth))
+        currentPriceLineView = UIView()
         currentPriceLineView?.isHidden = true
         addSubview(currentPriceLineView!)
         
-        currentPriceLabel = UILabel(frame: CGRect.zero)
+        currentPriceLabel = UILabel()
+        currentPriceLabel?.backgroundColor = UIColor.white
         currentPriceLabel?.isHidden = true
         currentPriceLabel?.font = labelFont
         currentPriceLabel?.minimumScaleFactor = 0.5
@@ -624,15 +628,15 @@ open class CHKLineChartView: UIView {
         addSubview(currentPriceLabel!)
         
         //初始化点击选择的辅助线显示
-        self.verticalLineView = UIView(frame: CGRect(x: 0, y: 0, width: lineWidth, height: 0))
-        self.verticalLineView?.backgroundColor = selectedLineColor
-        self.verticalLineView?.isHidden = true
-        self.addSubview(self.verticalLineView!)
+        self.selectedYAxisLineView = UIView(frame: CGRect(x: 0, y: 0, width: lineWidth, height: 0))
+        self.selectedYAxisLineView?.backgroundColor = selectedLineColor
+        self.selectedYAxisLineView?.isHidden = true
+        self.addSubview(self.selectedYAxisLineView!)
         
-        self.horizontalLineView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: lineWidth))
-        self.horizontalLineView?.backgroundColor = selectedLineColor
-        self.horizontalLineView?.isHidden = true
-        self.addSubview(self.horizontalLineView!)
+        self.selectedXAxisLineView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: lineWidth))
+        self.selectedXAxisLineView?.backgroundColor = selectedLineColor
+        self.selectedXAxisLineView?.isHidden = true
+        self.addSubview(self.selectedXAxisLineView!)
         
         //用户点击图表显示当前y轴的实际值
         self.selectedYAxisLabel = UILabel(frame: CGRect.zero)
@@ -660,10 +664,6 @@ open class CHKLineChartView: UIView {
         self.sightView?.isHidden = true
         self.sightView?.layer.cornerRadius = 3
         self.addSubview(self.sightView!)
-        
-        //绘画图层
-        self.layer.addSublayer(self.drawLayer)
-        
         
         //添加手势操作
         let pan = UIPanGestureRecognizer(
@@ -834,7 +834,7 @@ open class CHKLineChartView: UIView {
                 let hy = self.padding.top
                 let hheight = lastSection.frame.maxY
                 //显示辅助线
-                self.horizontalLineView?.frame = CGRect(x: hx, y: hy, width: self.lineWidth, height: hheight)
+                self.selectedXAxisLineView?.frame = CGRect(x: hx, y: hy, width: self.lineWidth, height: hheight)
                 //                self.horizontalLineView?.isHidden = false
                 
                 let vx = section!.frame.origin.x + section!.padding.left
@@ -861,7 +861,7 @@ open class CHKLineChartView: UIView {
                 }
                 let hwidth = section!.frame.size.width - section!.padding.left - section!.padding.right
                 //显示辅助线
-                self.verticalLineView?.frame = CGRect(x: vx, y: vy - self.lineWidth / 2, width: hwidth, height: self.lineWidth)
+                self.selectedYAxisLineView?.frame = CGRect(x: vx, y: vy - self.lineWidth / 2, width: hwidth, height: self.lineWidth)
                 //                self.verticalLineView?.isHidden = false
                 
                 //显示y轴辅助内容
@@ -878,7 +878,7 @@ open class CHKLineChartView: UIView {
                     self.selectedYAxisLabel?.isHidden = true
                 }
                 self.selectedYAxisLabel?.text = yVal.ch_toString(withFormat: format)    //显示实际值
-                self.selectedYAxisLabel?.frame = CGRect(x: yAxisStartX, y: vy - self.labelSize.height / 2, width: style.yAxisLabelLayerWidth, height: self.labelSize.height)
+                self.selectedYAxisLabel?.frame = CGRect(x: yAxisStartX, y: vy - yAxisLabelHeight / 2, width: style.yAxisLabelLayerWidth, height: yAxisLabelHeight)
                 let time = Date.ch_getTimeByStamp(item.time, format: "yyyy-MM-dd HH:mm") //显示实际值
                 let size = time.ch_sizeWithConstrained(self.labelFont)
                 self.selectedXAxisLabel?.text = time
@@ -893,7 +893,7 @@ open class CHKLineChartView: UIView {
                     x = section!.frame.origin.x + section!.frame.size.width - labelWidth
                 }
                 
-                self.selectedXAxisLabel?.frame = CGRect(x: x, y: showXAxisSection.frame.maxY, width: size.width  + 6, height: self.labelSize.height)
+                self.selectedXAxisLabel?.frame = CGRect(x: x, y: showXAxisSection.frame.maxY, width: size.width  + 6, height: style.xAxisLabelLayerHeight)
                 
                 self.sightView?.center = CGPoint(x: hx, y: vy)
                 
@@ -902,8 +902,8 @@ open class CHKLineChartView: UIView {
                 
                 self.showSelection = true
                 
-                self.bringSubviewToFront(self.verticalLineView!)
-                self.bringSubviewToFront(self.horizontalLineView!)
+                self.bringSubviewToFront(self.selectedYAxisLineView!)
+                self.bringSubviewToFront(self.selectedXAxisLineView!)
                 self.bringSubviewToFront(self.selectedXAxisLabel!)
                 self.bringSubviewToFront(self.selectedYAxisLabel!)
                 self.bringSubviewToFront(self.sightView!)
@@ -1117,14 +1117,17 @@ extension CHKLineChartView {
     func updatePriceIndicator(in serie: CHSeries) {
         guard let model = serie.chartModels.first, let data = model.datas.last, serie.key == CHSeriesKey.candle else { return }
         let section = model.section!
-        let width = section.frame.size.width - section.padding.left - section.padding.right
         
         let currentPriceY = section.getLocalY(data.closePrice)
-        
-        currentPriceLineView?.center.y = min(section.frame.height - 10, max(20, currentPriceY))
-        currentPriceLineView?.frame.size.width = width
+        let indicatorY = min(section.frame.height - 10, max(20, currentPriceY))
+        let indicatorLineX = section.padding.left
+        let indicatorLineWidth = section.frame.size.width - section.padding.left - section.padding.right
+        currentPriceLineView?.frame = CGRect(x: indicatorLineX, y: indicatorY, width: indicatorLineWidth, height: lineWidth)
         currentPriceLineView?.isHidden = false
-        bringSubviewToFront(currentPriceLineView!)
+        let indicatorLabelX = style.showYAxisLabel == .left ? 0 : section.frame.maxX - style.yAxisLabelLayerWidth
+        currentPriceLabel?.frame = CGRect(x: indicatorLabelX, y: indicatorY - yAxisLabelHeight / 2, width: style.yAxisLabelLayerWidth, height: yAxisLabelHeight)
+        currentPriceLabel?.isHidden = false
+        currentPriceLabel?.text = data.closePrice.ch_toString()
         if currentPriceLineView?.layer.sublayers == nil {
             let lineLayer = CAShapeLayer()
             lineLayer.strokeColor = UIColor.orange.cgColor
@@ -1132,7 +1135,7 @@ extension CHKLineChartView {
             lineLayer.lineWidth = currentPriceLineView!.frame.height
             let linePath = UIBezierPath()
             linePath.move(to: .zero)
-            linePath.addLine(to: CGPoint(x: width, y: 0))
+            linePath.addLine(to: CGPoint(x: indicatorLineWidth, y: 0))
             lineLayer.path = linePath.cgPath
             currentPriceLineView?.layer.addSublayer(lineLayer)
         }
